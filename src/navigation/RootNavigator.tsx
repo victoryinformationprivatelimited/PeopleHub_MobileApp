@@ -19,6 +19,7 @@ import PayrollHomeScreen from "../screens/PayrollHomeScreen";
 import PayslipScreen from "../screens/PayslipScreen";
 import ReimbursementsScreen from "../screens/ReimbursementsScreen";
 import RequestReimbursementScreen from "../screens/RequestReimbursementScreen";
+import CompanyHierarchyScreen from "../screens/CompanyHierarchyScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -50,6 +51,7 @@ export default function RootNavigator() {
             <Stack.Screen name="Payslip" component={PayslipScreen} />
             <Stack.Screen name="Reimbursements" component={ReimbursementsScreen} options={{ title: "Reimbursements" }} />
             <Stack.Screen name="RequestReimbursement" component={RequestReimbursementScreen} options={{ title: "Request Reimbursement" }} />
+            <Stack.Screen name="CompanyHierarchy" component={CompanyHierarchyScreen} options={{ title: "Company Hierarchy" }} />
           </>
         ) : (
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />

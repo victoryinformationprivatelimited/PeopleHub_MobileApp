@@ -19,6 +19,9 @@ export default function HomeScreen({ navigation }: Props) {
       <Pressable style={styles.tile} onPress={() => navigation.navigate("PayrollHome")} testID="home-payroll-button">
         <Text style={styles.tileText}>Payroll</Text>
       </Pressable>
+      <Pressable style={styles.tile} onPress={() => navigation.navigate("CompanyHierarchy")} testID="home-hierarchy-button">
+        <Text style={styles.tileText}>Company Hierarchy</Text>
+      </Pressable>
     </View>
   );
 }

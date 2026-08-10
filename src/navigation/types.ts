@@ -15,4 +15,5 @@ export type RootStackParamList = {
   Payslip: { payPeriodId: number; label: string };
   Reimbursements: undefined;
   RequestReimbursement: undefined;
+  CompanyHierarchy: undefined;
 };
