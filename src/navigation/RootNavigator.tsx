@@ -15,6 +15,10 @@ import PendingApprovalsScreen from "../screens/PendingApprovalsScreen";
 import LeaveHomeScreen from "../screens/LeaveHomeScreen";
 import LeaveRequestsScreen from "../screens/LeaveRequestsScreen";
 import ApplyLeaveScreen from "../screens/ApplyLeaveScreen";
+import PayrollHomeScreen from "../screens/PayrollHomeScreen";
+import PayslipScreen from "../screens/PayslipScreen";
+import ReimbursementsScreen from "../screens/ReimbursementsScreen";
+import RequestReimbursementScreen from "../screens/RequestReimbursementScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -42,6 +46,10 @@ export default function RootNavigator() {
             <Stack.Screen name="LeaveHome" component={LeaveHomeScreen} options={{ title: "Leave" }} />
             <Stack.Screen name="LeaveRequests" component={LeaveRequestsScreen} />
             <Stack.Screen name="ApplyLeave" component={ApplyLeaveScreen} options={{ title: "Apply for Leave" }} />
+            <Stack.Screen name="PayrollHome" component={PayrollHomeScreen} options={{ title: "Payroll" }} />
+            <Stack.Screen name="Payslip" component={PayslipScreen} />
+            <Stack.Screen name="Reimbursements" component={ReimbursementsScreen} options={{ title: "Reimbursements" }} />
+            <Stack.Screen name="RequestReimbursement" component={RequestReimbursementScreen} options={{ title: "Request Reimbursement" }} />
           </>
         ) : (
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />

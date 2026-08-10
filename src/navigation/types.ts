@@ -11,4 +11,8 @@ export type RootStackParamList = {
   LeaveHome: undefined;
   LeaveRequests: { status: "Pending" | "Approved" | "Rejected" };
   ApplyLeave: undefined;
+  PayrollHome: undefined;
+  Payslip: { payPeriodId: number; label: string };
+  Reimbursements: undefined;
+  RequestReimbursement: undefined;
 };
