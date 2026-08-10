@@ -1,11 +1,13 @@
 import { useEffect } from "react";
+import { View, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator, type NativeStackNavigationOptions } from "@react-navigation/native-stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store";
 import { checkExistingSession } from "../store/authSlice";
-import type { RootStackParamList } from "./types";
-import { brand, moduleColor } from "../theme";
+import type { RootStackParamList, RootNavParamList, MainTabParamList } from "./types";
+import { brand, neutral } from "../theme";
 import LoginScreen from "../screens/LoginScreen";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileListScreen from "../screens/ProfileListScreen";
@@ -22,16 +24,105 @@ import ReimbursementsScreen from "../screens/ReimbursementsScreen";
 import RequestReimbursementScreen from "../screens/RequestReimbursementScreen";
 import CompanyHierarchyScreen from "../screens/CompanyHierarchyScreen";
 
+const RootStack = createNativeStackNavigator<RootNavParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-/** Colors each module's header bar to match its Home-screen tile, so the accent carries through
- * from tap to screen instead of every header reading as the same flat default. */
-function headerFor(solid: string): NativeStackNavigationOptions {
-  return {
-    headerStyle: { backgroundColor: solid },
-    headerTintColor: "#fff",
-    headerTitleStyle: { fontWeight: "700" },
-  };
+const headerOptions: NativeStackNavigationOptions = {
+  headerStyle: { backgroundColor: brand.solid },
+  headerTintColor: "#fff",
+  headerTitleStyle: { fontWeight: "700" },
+};
+
+function HomeTabStack() {
+  return (
+    <Stack.Navigator screenOptions={headerOptions}>
+      <Stack.Screen name="Home" component={HomeScreen} options={{ title: "PeopleHub" }} />
+      <Stack.Screen name="MarkAttendance" component={MarkAttendanceScreen} options={{ title: "Mark Attendance" }} />
+      <Stack.Screen name="PendingApprovals" component={PendingApprovalsScreen} options={{ title: "Pending Approvals" }} />
+      <Stack.Screen name="ApplyLeave" component={ApplyLeaveScreen} options={{ title: "Apply for Leave" }} />
+      <Stack.Screen name="Payslip" component={PayslipScreen} />
+      <Stack.Screen name="RequestReimbursement" component={RequestReimbursementScreen} options={{ title: "Request Reimbursement" }} />
+      <Stack.Screen name="CompanyHierarchy" component={CompanyHierarchyScreen} options={{ title: "Company Hierarchy" }} />
+    </Stack.Navigator>
+  );
+}
+
+function AttendanceTabStack() {
+  return (
+    <Stack.Navigator screenOptions={headerOptions}>
+      <Stack.Screen name="AttendanceHome" component={AttendanceHomeScreen} options={{ title: "Attendance & Roster" }} />
+      <Stack.Screen name="MarkAttendance" component={MarkAttendanceScreen} options={{ title: "Mark Attendance" }} />
+      <Stack.Screen name="PendingApprovals" component={PendingApprovalsScreen} options={{ title: "Pending Approvals" }} />
+      <Stack.Screen name="LeaveHome" component={LeaveHomeScreen} options={{ title: "Leave" }} />
+      <Stack.Screen name="LeaveRequests" component={LeaveRequestsScreen} />
+      <Stack.Screen name="ApplyLeave" component={ApplyLeaveScreen} options={{ title: "Apply for Leave" }} />
+    </Stack.Navigator>
+  );
+}
+
+function PayrollTabStack() {
+  return (
+    <Stack.Navigator screenOptions={headerOptions}>
+      <Stack.Screen name="PayrollHome" component={PayrollHomeScreen} options={{ title: "Payroll" }} />
+      <Stack.Screen name="Payslip" component={PayslipScreen} />
+      <Stack.Screen name="Reimbursements" component={ReimbursementsScreen} options={{ title: "Reimbursements" }} />
+      <Stack.Screen name="RequestReimbursement" component={RequestReimbursementScreen} options={{ title: "Request Reimbursement" }} />
+    </Stack.Navigator>
+  );
+}
+
+function ProfileTabStack() {
+  return (
+    <Stack.Navigator screenOptions={headerOptions}>
+      <Stack.Screen name="ProfileList" component={ProfileListScreen} options={{ title: "Profile" }} />
+      <Stack.Screen name="ProfileSection" component={ProfileSectionScreen} />
+      <Stack.Screen name="CompanyHierarchy" component={CompanyHierarchyScreen} options={{ title: "Company Hierarchy" }} />
+    </Stack.Navigator>
+  );
+}
+
+/** Plain-text tab icon substitutes — no icon library in this project (see theme.ts's badge-letter
+ * pattern for the same reasoning). Active tab gets the brand color, inactive stays muted grey. */
+function TabIcon({ symbol, focused }: { symbol: string; focused: boolean }) {
+  return (
+    <View>
+      <Text style={{ fontSize: 18, color: focused ? brand.solid : neutral.textMuted }}>{symbol}</Text>
+    </View>
+  );
+}
+
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: brand.solid,
+        tabBarInactiveTintColor: neutral.textMuted,
+      }}
+    >
+      <Tab.Screen
+        name="HomeTab"
+        component={HomeTabStack}
+        options={{ title: "Home", tabBarIcon: ({ focused }) => <TabIcon symbol="⌂" focused={focused} /> }}
+      />
+      <Tab.Screen
+        name="AttendanceTab"
+        component={AttendanceTabStack}
+        options={{ title: "Attendance", tabBarIcon: ({ focused }) => <TabIcon symbol="🗓" focused={focused} /> }}
+      />
+      <Tab.Screen
+        name="PayrollTab"
+        component={PayrollTabStack}
+        options={{ title: "Payroll", tabBarIcon: ({ focused }) => <TabIcon symbol="$" focused={focused} /> }}
+      />
+      <Tab.Screen
+        name="ProfileTab"
+        component={ProfileTabStack}
+        options={{ title: "Profile", tabBarIcon: ({ focused }) => <TabIcon symbol="☺" focused={focused} /> }}
+      />
+    </Tab.Navigator>
+  );
 }
 
 export default function RootNavigator() {
@@ -46,28 +137,13 @@ export default function RootNavigator() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <RootStack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated ? (
-          <>
-            <Stack.Screen name="Home" component={HomeScreen} options={{ title: "PeopleHub ESS", ...headerFor(brand.solid) }} />
-            <Stack.Screen name="ProfileList" component={ProfileListScreen} options={{ title: "Profile", ...headerFor(moduleColor.profile.solid) }} />
-            <Stack.Screen name="ProfileSection" component={ProfileSectionScreen} options={headerFor(moduleColor.profile.solid)} />
-            <Stack.Screen name="AttendanceHome" component={AttendanceHomeScreen} options={{ title: "Attendance & Roster", ...headerFor(moduleColor.attendance.solid) }} />
-            <Stack.Screen name="MarkAttendance" component={MarkAttendanceScreen} options={{ title: "Mark Attendance", ...headerFor(moduleColor.attendance.solid) }} />
-            <Stack.Screen name="PendingApprovals" component={PendingApprovalsScreen} options={{ title: "Pending Approvals", ...headerFor(moduleColor.attendance.solid) }} />
-            <Stack.Screen name="LeaveHome" component={LeaveHomeScreen} options={{ title: "Leave", ...headerFor(moduleColor.leave.solid) }} />
-            <Stack.Screen name="LeaveRequests" component={LeaveRequestsScreen} options={headerFor(moduleColor.leave.solid)} />
-            <Stack.Screen name="ApplyLeave" component={ApplyLeaveScreen} options={{ title: "Apply for Leave", ...headerFor(moduleColor.leave.solid) }} />
-            <Stack.Screen name="PayrollHome" component={PayrollHomeScreen} options={{ title: "Payroll", ...headerFor(moduleColor.payroll.solid) }} />
-            <Stack.Screen name="Payslip" component={PayslipScreen} options={headerFor(moduleColor.payroll.solid)} />
-            <Stack.Screen name="Reimbursements" component={ReimbursementsScreen} options={{ title: "Reimbursements", ...headerFor(moduleColor.payroll.solid) }} />
-            <Stack.Screen name="RequestReimbursement" component={RequestReimbursementScreen} options={{ title: "Request Reimbursement", ...headerFor(moduleColor.payroll.solid) }} />
-            <Stack.Screen name="CompanyHierarchy" component={CompanyHierarchyScreen} options={{ title: "Company Hierarchy", ...headerFor(moduleColor.hierarchy.solid) }} />
-          </>
+          <RootStack.Screen name="Main" component={MainTabs} />
         ) : (
-          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+          <RootStack.Screen name="Login" component={LoginScreen} />
         )}
-      </Stack.Navigator>
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 }

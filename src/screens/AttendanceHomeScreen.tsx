@@ -4,7 +4,8 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { RosterReturn, AttendanceSummaryReturn } from "../type/attendance";
 import { getMyRoster, getMyAttendanceSummary } from "../api/Attendance/AttendanceAPI";
-import { moduleColor } from "../theme";
+import { moduleColor, chart } from "../theme";
+import PieChart from "../components/PieChart";
 
 const accent = moduleColor.attendance;
 
@@ -50,10 +51,19 @@ export default function AttendanceHomeScreen({ navigation }: Props) {
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>This month</Text>
+        {summary ? (
+          <PieChart
+            segments={[
+              { label: "Present", value: summary.presentDays, color: chart.present },
+              { label: "Absent", value: summary.absentDays, color: chart.absent },
+              { label: "Leaves", value: summary.leaveDays, color: chart.leaves },
+            ]}
+          />
+        ) : null}
         <View style={styles.summaryRow}>
-          <SummaryStat label="Present" value={summary?.presentDays} />
-          <SummaryStat label="Absent" value={summary?.absentDays} />
           <SummaryStat label="Late" value={summary?.lateDays} />
+          <SummaryStat label="Holidays" value={summary?.holidayDays} />
+          <SummaryStat label="Weekends" value={summary?.weekendDays} />
         </View>
       </View>
 
@@ -82,7 +92,7 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 13, color: accent.fg, marginBottom: 8, textTransform: "uppercase", fontWeight: "700" },
   line: { fontSize: 16, fontWeight: "600", color: "#111" },
   lineMuted: { fontSize: 14, color: "#555", marginTop: 2 },
-  summaryRow: { flexDirection: "row", justifyContent: "space-between" },
+  summaryRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 16 },
   stat: { alignItems: "center" },
   statValue: { fontSize: 22, fontWeight: "700", color: accent.fg },
   statLabel: { fontSize: 12, color: "#666" },

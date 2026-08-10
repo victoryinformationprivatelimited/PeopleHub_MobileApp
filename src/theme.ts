@@ -1,15 +1,18 @@
 /**
- * Ported from the real PeopleHub brand tokens (Frontend/PeopleHub-ESS/src/index.css, itself
- * sourced from Design/ESS-Portal-Design-Standards-for-Figma.md §1-2) so the mobile app reads as
- * the same product as the web ESS portal instead of inventing its own palette. React Native has
- * no CSS gradient primitive without an extra dependency, so the brand gradient (#0092fc → #005796)
- * collapses to its solid midpoint `brand.solid` here rather than pulling in expo-linear-gradient
- * for one visual effect.
+ * Ported from the PeopleHub Mobile App UI Figma Make design
+ * (figma.com/make/fIq8xc8buuDJR3pp02otf3, "Update color scheme to blue" — Version 3), which the
+ * team designed as the real target look for this app. Single cyan/teal brand instead of the
+ * per-module rainbow this file used before — one identity, used consistently everywhere.
  */
 
 export const brand = {
-  solid: "#0092fc",
-  dark: "#005796",
+  solid: "#00bcd4",
+  light1: "#26c6da",
+  light2: "#4dd0e1",
+  dark1: "#00acc1",
+  dark2: "#0097a7",
+  /** Hero/header gradient endpoints, matching the mockup's Home/Payroll/Profile hero blocks. */
+  gradient: ["#00bcd4", "#0097a7"] as const,
 };
 
 export const neutral = {
@@ -21,27 +24,33 @@ export const neutral = {
   border: "rgba(0,0,0,0.08)",
 };
 
-/** Semantic tile pairs — light background + darker foreground, matching the web app's
- * info/success/warning/destructive/purple/pink tile tokens. `solid` is a higher-chroma variant
- * of the same hue for button fills, since the muted `fg` reads flat as white-on-color. */
+/** Semantic tile pairs, unchanged in meaning from before — status colors stay status colors
+ * regardless of brand hue, since red-for-destructive/green-for-success are universal, not brand. */
 export const semantic = {
-  info: { bg: "#e6f1fb", fg: "#185fa5", solid: brand.solid },
+  info: { bg: "#e6f1fb", fg: "#185fa5", solid: "#0092fc" },
   success: { bg: "#eaf3de", fg: "#27500a", solid: "#198754" },
-  warning: { bg: "#faeeda", fg: "#854f0b", solid: "#d97706" },
+  warning: { bg: "#fef3c7", fg: "#92400e", solid: "#d97706" },
   destructive: { bg: "#fcebeb", fg: "#a32d2d", solid: "#d4183d" },
-  purple: { bg: "#eeedfe", fg: "#3c3489", solid: "#7c3aed" },
-  pink: { bg: "#fbeaf0", fg: "#72243e", solid: "#db2777" },
 };
 
-/** One semantic color per ESS module, used for that module's Home tile, header, buttons, and
- * selected-chip states — gives each section a distinct identity instead of every screen reusing
- * the same flat blue. */
+/** Every module now shares the single brand color/tint — matches the mockup, which has one
+ * consistent teal identity rather than a color per section. Kept as a map (not a flat constant)
+ * so screens don't need to change their `accent.bg`/`accent.fg`/`accent.solid` call sites. */
+const brandTile = { bg: "#e0f7fa", fg: brand.dark2, solid: brand.solid };
 export const moduleColor = {
-  profile: semantic.info,
-  attendance: semantic.purple,
-  leave: semantic.pink,
-  payroll: semantic.success,
-  hierarchy: semantic.warning,
+  profile: brandTile,
+  attendance: brandTile,
+  leave: brandTile,
+  payroll: brandTile,
+  hierarchy: brandTile,
+};
+
+/** Data-viz palette — Present/Absent/Leaves in the mockup's attendance pie chart use semantic
+ * status colors (green/red/teal), not the brand hue, so charts stay readable at a glance. */
+export const chart = {
+  present: "#16a34a",
+  absent: "#e11d48",
+  leaves: brand.solid,
 };
 
 export type ModuleKey = keyof typeof moduleColor;

@@ -5,6 +5,7 @@ import type { RootStackParamList } from "../navigation/types";
 import type { PayslipReturn } from "../type/payroll";
 import { getMyPayslip } from "../api/Payroll/PayrollAPI";
 import { moduleColor, semantic } from "../theme";
+import BarChart from "../components/BarChart";
 
 const accent = moduleColor.payroll;
 
@@ -44,6 +45,14 @@ export default function PayslipScreen({ route, navigation }: Props) {
         </View>
       ) : (
         <>
+          {payslip.earnings.length + payslip.deductions.length > 0 ? (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Earnings Breakdown</Text>
+              <BarChart
+                data={[...payslip.earnings, ...payslip.deductions].map((item) => ({ label: item.label, value: item.amount }))}
+              />
+            </View>
+          ) : null}
           <LineItemSection title="Earnings" items={payslip.earnings} />
           <LineItemSection title="Deductions" items={payslip.deductions} />
           <View style={styles.totalsCard}>
