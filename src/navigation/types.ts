@@ -8,4 +8,7 @@ export type RootStackParamList = {
   AttendanceHome: undefined;
   MarkAttendance: undefined;
   PendingApprovals: undefined;
+  LeaveHome: undefined;
+  LeaveRequests: { status: "Pending" | "Approved" | "Rejected" };
+  ApplyLeave: undefined;
 };

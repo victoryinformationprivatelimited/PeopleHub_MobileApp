@@ -12,6 +12,9 @@ import ProfileSectionScreen from "../screens/ProfileSectionScreen";
 import AttendanceHomeScreen from "../screens/AttendanceHomeScreen";
 import MarkAttendanceScreen from "../screens/MarkAttendanceScreen";
 import PendingApprovalsScreen from "../screens/PendingApprovalsScreen";
+import LeaveHomeScreen from "../screens/LeaveHomeScreen";
+import LeaveRequestsScreen from "../screens/LeaveRequestsScreen";
+import ApplyLeaveScreen from "../screens/ApplyLeaveScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -36,6 +39,9 @@ export default function RootNavigator() {
             <Stack.Screen name="AttendanceHome" component={AttendanceHomeScreen} options={{ title: "Attendance & Roster" }} />
             <Stack.Screen name="MarkAttendance" component={MarkAttendanceScreen} options={{ title: "Mark Attendance" }} />
             <Stack.Screen name="PendingApprovals" component={PendingApprovalsScreen} options={{ title: "Pending Approvals" }} />
+            <Stack.Screen name="LeaveHome" component={LeaveHomeScreen} options={{ title: "Leave" }} />
+            <Stack.Screen name="LeaveRequests" component={LeaveRequestsScreen} />
+            <Stack.Screen name="ApplyLeave" component={ApplyLeaveScreen} options={{ title: "Apply for Leave" }} />
           </>
         ) : (
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
