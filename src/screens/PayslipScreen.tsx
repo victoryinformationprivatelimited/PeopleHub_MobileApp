@@ -4,6 +4,9 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { PayslipReturn } from "../type/payroll";
 import { getMyPayslip } from "../api/Payroll/PayrollAPI";
+import { moduleColor, semantic } from "../theme";
+
+const accent = moduleColor.payroll;
 
 type Props = NativeStackScreenProps<RootStackParamList, "Payslip">;
 
@@ -84,11 +87,11 @@ const styles = StyleSheet.create({
   header: { marginBottom: 8 },
   employeeName: { fontSize: 18, fontWeight: "700", color: "#111" },
   meta: { fontSize: 13, color: "#666", marginTop: 2 },
-  notConfiguredCard: { backgroundColor: "#fff3cd", borderRadius: 12, padding: 16 },
-  notConfiguredText: { color: "#664d03", fontSize: 14, lineHeight: 20 },
-  card: { backgroundColor: "#f8f9fa", borderRadius: 12, padding: 14 },
-  cardTitle: { fontSize: 13, color: "#666", textTransform: "uppercase", marginBottom: 8 },
-  totalsCard: { backgroundColor: "#f8f9fa", borderRadius: 12, padding: 14, marginTop: 4 },
+  notConfiguredCard: { backgroundColor: semantic.warning.bg, borderRadius: 12, padding: 16 },
+  notConfiguredText: { color: semantic.warning.fg, fontSize: 14, lineHeight: 20 },
+  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14 },
+  cardTitle: { fontSize: 13, color: accent.fg, textTransform: "uppercase", marginBottom: 8, fontWeight: "700" },
+  totalsCard: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginTop: 4 },
   lineRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 4 },
   lineLabel: { fontSize: 14, color: "#333" },
   lineAmount: { fontSize: 14, color: "#111", fontWeight: "600" },

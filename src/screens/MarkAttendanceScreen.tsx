@@ -5,6 +5,9 @@ import * as Location from "expo-location";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import { markAttendance } from "../api/Attendance/AttendanceAPI";
+import { moduleColor, semantic } from "../theme";
+
+const accent = moduleColor.attendance;
 
 type Props = NativeStackScreenProps<RootStackParamList, "MarkAttendance">;
 
@@ -122,12 +125,12 @@ const styles = StyleSheet.create({
   info: { textAlign: "center", marginBottom: 16, color: "#444" },
   preview: { height: 280, backgroundColor: "#000" },
   controls: { padding: 16, gap: 10 },
-  button: { backgroundColor: "#0d6efd", borderRadius: 8, paddingVertical: 12, alignItems: "center" },
+  button: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 12, alignItems: "center" },
   buttonText: { color: "#fff", fontWeight: "600" },
   secondaryButton: { backgroundColor: "#f1f3f5", borderRadius: 8, paddingVertical: 12, alignItems: "center" },
   secondaryButtonText: { color: "#333", fontWeight: "600" },
   input: { borderWidth: 1, borderColor: "#ddd", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10 },
-  error: { color: "#b3261e", fontSize: 12 },
+  error: { color: semantic.destructive.fg, fontSize: 12 },
   result: { textAlign: "center", color: "#333" },
-  submitButton: { backgroundColor: "#198754", borderRadius: 8, paddingVertical: 14, alignItems: "center", marginTop: 6 },
+  submitButton: { backgroundColor: semantic.success.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginTop: 6 },
 });

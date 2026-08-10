@@ -4,6 +4,9 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { ReimbursementReturn } from "../type/payroll";
 import { getMyReimbursements } from "../api/Payroll/PayrollAPI";
+import { moduleColor } from "../theme";
+
+const accent = moduleColor.payroll;
 
 type Props = NativeStackScreenProps<RootStackParamList, "Reimbursements">;
 
@@ -63,12 +66,12 @@ export default function ReimbursementsScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { padding: 16, gap: 10 },
-  requestButton: { backgroundColor: "#0d6efd", borderRadius: 8, paddingVertical: 14, alignItems: "center", marginBottom: 16 },
+  requestButton: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginBottom: 16 },
   requestButtonText: { color: "#fff", fontWeight: "600" },
   empty: { textAlign: "center", color: "#666", marginTop: 24 },
-  card: { backgroundColor: "#f8f9fa", borderRadius: 12, padding: 14, marginBottom: 10 },
+  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 10 },
   rowBetween: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  type: { fontSize: 12, color: "#0d6efd", fontWeight: "700", textTransform: "uppercase" },
+  type: { fontSize: 12, color: accent.fg, fontWeight: "700", textTransform: "uppercase" },
   amount: { fontSize: 16, fontWeight: "700", color: "#111" },
   description: { fontSize: 14, color: "#333", marginTop: 6 },
   meta: { fontSize: 12, color: "#666", marginTop: 4 },

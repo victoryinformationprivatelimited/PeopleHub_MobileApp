@@ -4,6 +4,9 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { LeaveEntitlementReturn } from "../type/leave";
 import { getMyLeaveEntitlements } from "../api/Leave/LeaveAPI";
+import { moduleColor } from "../theme";
+
+const accent = moduleColor.leave;
 
 type Props = NativeStackScreenProps<RootStackParamList, "LeaveHome">;
 
@@ -83,15 +86,15 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 const styles = StyleSheet.create({
   container: { padding: 16, gap: 12 },
-  applyButton: { backgroundColor: "#0d6efd", borderRadius: 8, paddingVertical: 14, alignItems: "center", marginBottom: 12 },
+  applyButton: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginBottom: 12 },
   applyButtonText: { color: "#fff", fontWeight: "600" },
   tabsRow: { flexDirection: "row", gap: 8, marginBottom: 16 },
-  tab: { flex: 1, backgroundColor: "#f1f3f5", borderRadius: 8, paddingVertical: 10, alignItems: "center" },
-  tabText: { color: "#333", fontWeight: "600", fontSize: 13 },
+  tab: { flex: 1, backgroundColor: accent.bg, borderRadius: 8, paddingVertical: 10, alignItems: "center" },
+  tabText: { color: accent.fg, fontWeight: "600", fontSize: 13 },
   sectionTitle: { fontSize: 13, color: "#666", textTransform: "uppercase", marginBottom: 8 },
   empty: { textAlign: "center", color: "#666", marginTop: 24 },
-  card: { backgroundColor: "#f8f9fa", borderRadius: 12, padding: 14, marginBottom: 10 },
-  cardTitle: { fontSize: 15, fontWeight: "600", color: "#111", marginBottom: 8 },
+  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 10 },
+  cardTitle: { fontSize: 15, fontWeight: "600", color: accent.fg, marginBottom: 8 },
   row: { flexDirection: "row", justifyContent: "space-between" },
   stat: { alignItems: "center" },
   statValue: { fontSize: 18, fontWeight: "700", color: "#111" },

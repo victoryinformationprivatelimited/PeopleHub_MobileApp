@@ -4,6 +4,9 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { RosterReturn, AttendanceSummaryReturn } from "../type/attendance";
 import { getMyRoster, getMyAttendanceSummary } from "../api/Attendance/AttendanceAPI";
+import { moduleColor } from "../theme";
+
+const accent = moduleColor.attendance;
 
 type Props = NativeStackScreenProps<RootStackParamList, "AttendanceHome">;
 
@@ -75,15 +78,15 @@ function SummaryStat({ label, value }: { label: string; value: number | undefine
 
 const styles = StyleSheet.create({
   container: { padding: 16, gap: 16 },
-  card: { backgroundColor: "#f8f9fa", borderRadius: 12, padding: 16 },
-  cardTitle: { fontSize: 13, color: "#666", marginBottom: 8, textTransform: "uppercase" },
+  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 16 },
+  cardTitle: { fontSize: 13, color: accent.fg, marginBottom: 8, textTransform: "uppercase", fontWeight: "700" },
   line: { fontSize: 16, fontWeight: "600", color: "#111" },
   lineMuted: { fontSize: 14, color: "#555", marginTop: 2 },
   summaryRow: { flexDirection: "row", justifyContent: "space-between" },
   stat: { alignItems: "center" },
-  statValue: { fontSize: 22, fontWeight: "700", color: "#111" },
+  statValue: { fontSize: 22, fontWeight: "700", color: accent.fg },
   statLabel: { fontSize: 12, color: "#666" },
-  button: { backgroundColor: "#0d6efd", borderRadius: 8, paddingVertical: 14, alignItems: "center" },
+  button: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center" },
   buttonText: { color: "#fff", fontWeight: "600" },
   secondaryButton: { backgroundColor: "#f1f3f5", borderRadius: 8, paddingVertical: 14, alignItems: "center" },
   secondaryButtonText: { color: "#333", fontWeight: "600" },

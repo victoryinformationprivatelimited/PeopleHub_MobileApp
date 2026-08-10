@@ -1,5 +1,8 @@
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import type { SectionPayload } from "../type/profile";
+import { moduleColor, semantic } from "../theme";
+
+const accent = moduleColor.profile;
 
 interface Props {
   loading: boolean;
@@ -63,14 +66,14 @@ export function SectionRenderer({ loading, error, payload }: Props) {
 
 const styles = StyleSheet.create({
   center: { marginTop: 24 },
-  error: { color: "#b3261e", padding: 16 },
+  error: { color: semantic.destructive.fg, padding: 16 },
   row: { borderBottomWidth: 1, borderBottomColor: "#eee", paddingVertical: 10 },
   label: { fontSize: 12, color: "#666" },
   value: { fontSize: 15, color: "#111", marginTop: 2 },
   entry: { borderBottomWidth: 1, borderBottomColor: "#eee", paddingVertical: 10 },
   entryTitle: { fontSize: 15, fontWeight: "600", color: "#111" },
   entrySub: { fontSize: 13, color: "#666", marginTop: 2 },
-  badge: { marginTop: 4, alignSelf: "flex-start", backgroundColor: "#e7f3ff", color: "#0d6efd", fontSize: 11, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
+  badge: { marginTop: 4, alignSelf: "flex-start", backgroundColor: accent.bg, color: accent.fg, fontSize: 11, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
   tagsWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   tag: { backgroundColor: "#f1f3f5", paddingHorizontal: 10, paddingVertical: 6, borderRadius: 14, fontSize: 13 },
   empty: { color: "#666", padding: 16, fontStyle: "italic" },

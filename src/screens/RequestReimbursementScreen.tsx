@@ -5,6 +5,9 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { PayPeriodReturn, RequestReimbursementReq } from "../type/payroll";
 import { getMyPayPeriods, requestReimbursement } from "../api/Payroll/PayrollAPI";
+import { moduleColor, semantic } from "../theme";
+
+const accent = moduleColor.payroll;
 
 type Props = NativeStackScreenProps<RootStackParamList, "RequestReimbursement">;
 
@@ -154,15 +157,15 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: "#ddd", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10 },
   chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: { backgroundColor: "#f1f3f5", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 },
-  chipSelected: { backgroundColor: "#0d6efd" },
+  chipSelected: { backgroundColor: accent.solid },
   chipText: { color: "#333", fontSize: 13 },
   chipTextSelected: { color: "#fff", fontWeight: "600" },
   preview: { height: 180, borderRadius: 8, marginBottom: 8, backgroundColor: "#000" },
-  button: { backgroundColor: "#0d6efd", borderRadius: 8, paddingVertical: 12, alignItems: "center" },
+  button: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 12, alignItems: "center" },
   buttonText: { color: "#fff", fontWeight: "600" },
   secondaryButton: { backgroundColor: "#f1f3f5", borderRadius: 8, paddingVertical: 12, alignItems: "center" },
   secondaryButtonText: { color: "#333", fontWeight: "600" },
   result: { textAlign: "center", color: "#333", marginTop: 16 },
-  submitButton: { backgroundColor: "#198754", borderRadius: 8, paddingVertical: 14, alignItems: "center", marginTop: 20, marginBottom: 40 },
+  submitButton: { backgroundColor: semantic.success.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginTop: 20, marginBottom: 40 },
   submitButtonText: { color: "#fff", fontWeight: "600" },
 });

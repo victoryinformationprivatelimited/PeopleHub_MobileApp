@@ -2,6 +2,9 @@ import { useEffect, useState, useCallback } from "react";
 import { View, Text, StyleSheet, ActivityIndicator, SectionList, RefreshControl } from "react-native";
 import type { TeamMemberReturn } from "../type/orgHierarchy";
 import { getMyTeam, getMyManagers } from "../api/OrgHierarchy/OrgHierarchyAPI";
+import { moduleColor } from "../theme";
+
+const accent = moduleColor.hierarchy;
 
 interface Section {
   title: string;
@@ -56,9 +59,9 @@ export default function CompanyHierarchyScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: 16, paddingBottom: 32 },
-  sectionTitle: { fontSize: 13, color: "#666", textTransform: "uppercase", marginTop: 16, marginBottom: 8, backgroundColor: "#fff" },
+  sectionTitle: { fontSize: 13, color: accent.fg, textTransform: "uppercase", marginTop: 16, marginBottom: 8, backgroundColor: "#fff", fontWeight: "700" },
   empty: { color: "#999", fontSize: 13, fontStyle: "italic", marginBottom: 8 },
-  card: { backgroundColor: "#f8f9fa", borderRadius: 12, padding: 14, marginBottom: 10 },
+  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 10 },
   name: { fontSize: 15, fontWeight: "600", color: "#111" },
   meta: { fontSize: 13, color: "#555", marginTop: 2 },
   number: { fontSize: 12, color: "#999", marginTop: 4 },

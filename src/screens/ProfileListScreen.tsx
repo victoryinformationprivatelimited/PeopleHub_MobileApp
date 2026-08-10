@@ -6,6 +6,7 @@ import { setLoggedOut } from "../store/authSlice";
 import { logout } from "../api/Auth/AuthAPI";
 import { SECTION_GROUPS } from "../type/sectionMeta";
 import type { RootStackParamList } from "../navigation/types";
+import { moduleColor, semantic } from "../theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ProfileList">;
 
@@ -44,9 +45,9 @@ export default function ProfileListScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  header: { backgroundColor: "#f1f3f5", paddingHorizontal: 16, paddingVertical: 6, fontSize: 12, fontWeight: "700", color: "#555" },
+  header: { backgroundColor: moduleColor.profile.bg, paddingHorizontal: 16, paddingVertical: 6, fontSize: 12, fontWeight: "700", color: moduleColor.profile.fg },
   row: { paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: "#eee" },
   rowText: { fontSize: 15, color: "#111" },
-  logout: { margin: 16, padding: 14, backgroundColor: "#fee2e2", borderRadius: 8, alignItems: "center" },
-  logoutText: { color: "#b3261e", fontWeight: "600" },
+  logout: { margin: 16, padding: 14, backgroundColor: semantic.destructive.bg, borderRadius: 8, alignItems: "center" },
+  logoutText: { color: semantic.destructive.fg, fontWeight: "600" },
 });

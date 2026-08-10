@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 import { setAuthenticated } from "../store/authSlice";
 import { login } from "../api/Auth/AuthAPI";
+import { brand } from "../theme";
 
 export default function LoginScreen() {
   const dispatch = useDispatch<AppDispatch>();
@@ -63,13 +64,13 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", padding: 24, backgroundColor: "#0B4F8A" },
+  container: { flex: 1, justifyContent: "center", padding: 24, backgroundColor: brand.dark },
   title: { fontSize: 28, fontWeight: "700", color: "#fff", textAlign: "center" },
   subtitle: { fontSize: 14, color: "#cfe3f5", textAlign: "center", marginBottom: 32 },
   field: { marginBottom: 16 },
   label: { color: "#fff", marginBottom: 6, fontSize: 13 },
   input: { backgroundColor: "#fff", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15 },
   error: { color: "#ffb3b3", marginBottom: 12, textAlign: "center" },
-  button: { backgroundColor: "#0d6efd", borderRadius: 8, paddingVertical: 14, alignItems: "center", marginTop: 8 },
+  button: { backgroundColor: brand.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginTop: 8 },
   buttonText: { color: "#fff", fontWeight: "600", fontSize: 16 },
 });

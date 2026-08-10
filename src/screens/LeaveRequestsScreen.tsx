@@ -4,6 +4,9 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { LeaveRequestReturn } from "../type/leave";
 import { getMyPendingLeaves, getMyApprovedLeaves, getMyRejectedLeaves } from "../api/Leave/LeaveAPI";
+import { moduleColor } from "../theme";
+
+const accent = moduleColor.leave;
 
 type Props = NativeStackScreenProps<RootStackParamList, "LeaveRequests">;
 
@@ -56,8 +59,8 @@ export default function LeaveRequestsScreen({ route, navigation }: Props) {
 
 const styles = StyleSheet.create({
   empty: { textAlign: "center", color: "#666", marginTop: 24 },
-  card: { backgroundColor: "#f8f9fa", borderRadius: 12, padding: 14, marginBottom: 10 },
-  type: { fontSize: 12, color: "#0d6efd", fontWeight: "700", textTransform: "uppercase" },
+  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 10 },
+  type: { fontSize: 12, color: accent.fg, fontWeight: "700", textTransform: "uppercase" },
   dates: { fontSize: 15, fontWeight: "600", color: "#111", marginTop: 4 },
   reason: { fontSize: 13, color: "#555", marginTop: 4 },
   meta: { fontSize: 12, color: "#666", marginTop: 6 },

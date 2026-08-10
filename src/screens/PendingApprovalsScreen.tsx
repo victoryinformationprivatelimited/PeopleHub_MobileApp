@@ -2,6 +2,9 @@ import { useEffect, useState, useCallback } from "react";
 import { View, Text, Pressable, StyleSheet, ActivityIndicator, FlatList } from "react-native";
 import type { PendingApprovalReturn } from "../type/attendance";
 import { getMyPendingApprovals, approveEmployeeRequest } from "../api/Attendance/AttendanceAPI";
+import { moduleColor, semantic } from "../theme";
+
+const accent = moduleColor.attendance;
 
 /** Manager-side: pending EmployeeRequests where the caller's own Role is the required approver
  * (Phase 5's shared approval mechanism — roster/attendance/leave/reimbursement all land here). */
@@ -66,14 +69,14 @@ export default function PendingApprovalsScreen() {
 
 const styles = StyleSheet.create({
   empty: { textAlign: "center", color: "#666", marginTop: 24 },
-  card: { backgroundColor: "#f8f9fa", borderRadius: 12, padding: 14, marginBottom: 12 },
-  type: { fontSize: 12, color: "#0d6efd", fontWeight: "700", textTransform: "uppercase" },
+  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 12 },
+  type: { fontSize: 12, color: accent.fg, fontWeight: "700", textTransform: "uppercase" },
   employee: { fontSize: 16, fontWeight: "600", marginTop: 4 },
   payload: { fontSize: 12, color: "#666", marginTop: 6 },
   actions: { flexDirection: "row", gap: 10, marginTop: 12 },
   actionButton: { flex: 1, borderRadius: 8, paddingVertical: 10, alignItems: "center" },
-  reject: { backgroundColor: "#fee2e2" },
-  approve: { backgroundColor: "#d1f5e0" },
-  rejectText: { color: "#b3261e", fontWeight: "600" },
-  approveText: { color: "#146c43", fontWeight: "600" },
+  reject: { backgroundColor: semantic.destructive.bg },
+  approve: { backgroundColor: semantic.success.bg },
+  rejectText: { color: semantic.destructive.fg, fontWeight: "600" },
+  approveText: { color: semantic.success.fg, fontWeight: "600" },
 });

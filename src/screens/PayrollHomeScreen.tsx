@@ -4,6 +4,9 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { PayPeriodReturn } from "../type/payroll";
 import { getMyPayPeriods } from "../api/Payroll/PayrollAPI";
+import { moduleColor } from "../theme";
+
+const accent = moduleColor.payroll;
 
 type Props = NativeStackScreenProps<RootStackParamList, "PayrollHome">;
 
@@ -65,11 +68,11 @@ export default function PayrollHomeScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { padding: 16, gap: 10 },
-  reimbursementsButton: { backgroundColor: "#0d6efd", borderRadius: 8, paddingVertical: 14, alignItems: "center", marginBottom: 16 },
+  reimbursementsButton: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginBottom: 16 },
   reimbursementsButtonText: { color: "#fff", fontWeight: "600" },
   sectionTitle: { fontSize: 13, color: "#666", textTransform: "uppercase", marginBottom: 8 },
   empty: { textAlign: "center", color: "#666", marginTop: 24 },
-  card: { backgroundColor: "#f8f9fa", borderRadius: 12, padding: 14, marginBottom: 10 },
-  cardTitle: { fontSize: 15, fontWeight: "600", color: "#111" },
+  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 10 },
+  cardTitle: { fontSize: 15, fontWeight: "600", color: accent.fg },
   cardMeta: { fontSize: 13, color: "#666", marginTop: 2 },
 });

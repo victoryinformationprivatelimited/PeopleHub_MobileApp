@@ -4,6 +4,9 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { LeaveEntitlementReturn, AvailableShiftReturn, CoveringPersonReturn, ApplyLeaveReq } from "../type/leave";
 import { getMyLeaveEntitlements, getAvailableShifts, getCoveringPersons, applyLeave } from "../api/Leave/LeaveAPI";
+import { moduleColor, semantic } from "../theme";
+
+const accent = moduleColor.leave;
 
 type Props = NativeStackScreenProps<RootStackParamList, "ApplyLeave">;
 
@@ -157,11 +160,11 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: "#ddd", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10 },
   chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   chip: { backgroundColor: "#f1f3f5", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 },
-  chipSelected: { backgroundColor: "#0d6efd" },
+  chipSelected: { backgroundColor: accent.solid },
   chipText: { color: "#333", fontSize: 13 },
   chipTextSelected: { color: "#fff", fontWeight: "600" },
   emptyChips: { color: "#999", fontSize: 13, fontStyle: "italic" },
   result: { textAlign: "center", color: "#333", marginTop: 16 },
-  submitButton: { backgroundColor: "#198754", borderRadius: 8, paddingVertical: 14, alignItems: "center", marginTop: 20, marginBottom: 40 },
+  submitButton: { backgroundColor: semantic.success.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginTop: 20, marginBottom: 40 },
   submitButtonText: { color: "#fff", fontWeight: "600" },
 });
