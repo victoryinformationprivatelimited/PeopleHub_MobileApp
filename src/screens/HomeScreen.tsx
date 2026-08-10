@@ -123,7 +123,7 @@ export default function HomeScreen({ navigation }: Props) {
           symbol="L"
           value={data.leaveBalance != null ? `${data.leaveBalance}` : "—"}
           label="Leave Days"
-          onPress={() => navigation.getParent()?.navigate("AttendanceTab" as never)}
+          onPress={() => (navigation.getParent() as any)?.navigate("AttendanceTab", { screen: "LeaveHome" })}
           testID="stat-leave"
         />
       </View>
@@ -145,6 +145,11 @@ export default function HomeScreen({ navigation }: Props) {
         <Text style={styles.cardTitle}>Quick Actions</Text>
         <View style={styles.actionsGrid}>
           <ActionButton label="Mark Attendance" onPress={() => navigation.navigate("MarkAttendance")} testID="qa-mark-attendance" />
+          <ActionButton
+            label="Leave"
+            onPress={() => (navigation.getParent() as any)?.navigate("AttendanceTab", { screen: "LeaveHome" })}
+            testID="qa-leave"
+          />
           <ActionButton label="Apply for Leave" onPress={() => navigation.navigate("ApplyLeave")} testID="qa-apply-leave" />
           <ActionButton label="Pending Approvals" onPress={() => navigation.navigate("PendingApprovals")} testID="qa-approvals" />
           {data.netPay ? (

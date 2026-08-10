@@ -70,6 +70,9 @@ export default function AttendanceHomeScreen({ navigation }: Props) {
       <Pressable style={styles.button} onPress={() => navigation.navigate("MarkAttendance")} testID="mark-attendance-button">
         <Text style={styles.buttonText}>Mark attendance</Text>
       </Pressable>
+      <Pressable style={styles.button} onPress={() => navigation.navigate("LeaveHome")} testID="leave-home-button">
+        <Text style={styles.buttonText}>Leave</Text>
+      </Pressable>
       <Pressable style={styles.secondaryButton} onPress={() => navigation.navigate("PendingApprovals")} testID="approvals-button">
         <Text style={styles.secondaryButtonText}>Pending approvals (manager)</Text>
       </Pressable>

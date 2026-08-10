@@ -5,6 +5,7 @@ import type { RootStackParamList } from "../navigation/types";
 import type { LeaveEntitlementReturn } from "../type/leave";
 import { getMyLeaveEntitlements } from "../api/Leave/LeaveAPI";
 import { moduleColor } from "../theme";
+import GradientHeader from "../components/GradientHeader";
 
 const accent = moduleColor.leave;
 
@@ -32,6 +33,8 @@ export default function LeaveHomeScreen({ navigation }: Props) {
 
   if (loading) return <ActivityIndicator style={{ marginTop: 40 }} />;
 
+  const totalBalance = entitlements.reduce((sum, e) => sum + e.balanceDays, 0);
+
   return (
     <FlatList
       contentContainerStyle={styles.container}
@@ -40,6 +43,10 @@ export default function LeaveHomeScreen({ navigation }: Props) {
       keyExtractor={(item) => String(item.leaveTypeId)}
       ListHeaderComponent={
         <>
+          <GradientHeader style={styles.hero}>
+            <Text style={styles.heroLabel}>Leave Balance</Text>
+            <Text style={styles.heroAmount}>{totalBalance} day{totalBalance === 1 ? "" : "s"}</Text>
+          </GradientHeader>
           <Pressable style={styles.applyButton} onPress={() => navigation.navigate("ApplyLeave")} testID="apply-leave-button">
             <Text style={styles.applyButtonText}>Apply for leave</Text>
           </Pressable>
@@ -85,15 +92,18 @@ function Stat({ label, value }: { label: string; value: number }) {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 12 },
-  applyButton: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginBottom: 12 },
+  container: { paddingBottom: 16, gap: 12 },
+  hero: { marginBottom: 16 },
+  heroLabel: { color: "rgba(255,255,255,0.85)", fontSize: 13 },
+  heroAmount: { color: "#fff", fontSize: 28, fontWeight: "700", marginTop: 4 },
+  applyButton: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginBottom: 12, marginHorizontal: 16 },
   applyButtonText: { color: "#fff", fontWeight: "600" },
-  tabsRow: { flexDirection: "row", gap: 8, marginBottom: 16 },
+  tabsRow: { flexDirection: "row", gap: 8, marginBottom: 16, marginHorizontal: 16 },
   tab: { flex: 1, backgroundColor: accent.bg, borderRadius: 8, paddingVertical: 10, alignItems: "center" },
   tabText: { color: accent.fg, fontWeight: "600", fontSize: 13 },
-  sectionTitle: { fontSize: 13, color: "#666", textTransform: "uppercase", marginBottom: 8 },
+  sectionTitle: { fontSize: 13, color: "#666", textTransform: "uppercase", marginBottom: 8, marginHorizontal: 16 },
   empty: { textAlign: "center", color: "#666", marginTop: 24 },
-  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 10 },
+  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 10, marginHorizontal: 16 },
   cardTitle: { fontSize: 15, fontWeight: "600", color: accent.fg, marginBottom: 8 },
   row: { flexDirection: "row", justifyContent: "space-between" },
   stat: { alignItems: "center" },
