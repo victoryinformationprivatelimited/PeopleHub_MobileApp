@@ -91,8 +91,12 @@ async function refreshAccessToken(): Promise<TokenResult> {
     }
 
     const data = await response.json();
-    await setSession(data.acctoken, data.refToken);
-    return { token: data.acctoken, status: 200 };
+    // /User/refresh-token returns {accessToken, refreshToken} — a different casing than
+    // /User/login's {acctoken, refToken} for the same concept, confirmed against the real
+    // backend response. Not a client-side guess: without this, every refresh silently stored
+    // "undefined" as the token and broke the session on the next request.
+    await setSession(data.accessToken, data.refreshToken);
+    return { token: data.accessToken, status: 200 };
   } catch {
     return { token: null, status: 0, message: "Network error during refresh" };
   }
