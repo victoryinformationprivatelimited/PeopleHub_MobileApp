@@ -6,8 +6,12 @@ import type { AppDispatch, RootState } from "../store";
 import { checkExistingSession } from "../store/authSlice";
 import type { RootStackParamList } from "./types";
 import LoginScreen from "../screens/LoginScreen";
+import HomeScreen from "../screens/HomeScreen";
 import ProfileListScreen from "../screens/ProfileListScreen";
 import ProfileSectionScreen from "../screens/ProfileSectionScreen";
+import AttendanceHomeScreen from "../screens/AttendanceHomeScreen";
+import MarkAttendanceScreen from "../screens/MarkAttendanceScreen";
+import PendingApprovalsScreen from "../screens/PendingApprovalsScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -26,8 +30,12 @@ export default function RootNavigator() {
       <Stack.Navigator>
         {isAuthenticated ? (
           <>
+            <Stack.Screen name="Home" component={HomeScreen} options={{ title: "PeopleHub ESS" }} />
             <Stack.Screen name="ProfileList" component={ProfileListScreen} options={{ title: "Profile" }} />
             <Stack.Screen name="ProfileSection" component={ProfileSectionScreen} />
+            <Stack.Screen name="AttendanceHome" component={AttendanceHomeScreen} options={{ title: "Attendance & Roster" }} />
+            <Stack.Screen name="MarkAttendance" component={MarkAttendanceScreen} options={{ title: "Mark Attendance" }} />
+            <Stack.Screen name="PendingApprovals" component={PendingApprovalsScreen} options={{ title: "Pending Approvals" }} />
           </>
         ) : (
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
