@@ -9,8 +9,8 @@
  * environment URL before anything beyond local dev testing.
  */
 const config = {
-  apiBaseUrl: "http://localhost:5014",
-  tenantId: "essdevlocal",
+  apiBaseUrl: "https://peoplehubapi.h2so4.lk",
+  // tenantId: "1",
 };
 
 export default config;

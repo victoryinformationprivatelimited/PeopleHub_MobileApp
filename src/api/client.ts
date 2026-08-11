@@ -26,7 +26,7 @@ interface RequestOptions {
 async function request<T>(path: string, options: RequestOptions = {}): Promise<ApiResult<T>> {
   const { method = "GET", body, skipAuth = false, isFormData = false } = options;
 
-  const headers: Record<string, string> = { "X-Tenant-ID": config.tenantId };
+  const headers: Record<string, string> = { };
   if (!isFormData) headers["Content-Type"] = "application/json";
 
   if (!skipAuth) {
