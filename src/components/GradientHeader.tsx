@@ -1,13 +1,18 @@
 import type { ReactNode } from "react";
 import { StyleSheet, View, type ViewStyle } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { brand } from "../theme";
+import { tokens } from "../theme/tokens";
 
-/** The teal hero block used at the top of Home/Payroll/Profile in the Figma design — a
- * brand.solid → brand.dark2 gradient rather than a flat fill. */
+/** The green hero block used at the top of Home/Payroll/Profile, ported from PeopleHub-ESS's
+ * AuthLayout panel gradient (brandC → brandB → dark green). */
 export default function GradientHeader({ children, style }: { children: ReactNode; style?: ViewStyle }) {
   return (
-    <LinearGradient colors={brand.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[styles.gradient, style]}>
+    <LinearGradient
+      colors={[tokens.brandC, tokens.brandB, tokens.brandA]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={[styles.gradient, style]}
+    >
       <View>{children}</View>
     </LinearGradient>
   );

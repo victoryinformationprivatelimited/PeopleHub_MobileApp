@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import type { SectionPayload } from "../type/profile";
 import { moduleColor, semantic } from "../theme";
+import { Skeleton } from "../components/Skeleton";
 
 const accent = moduleColor.profile;
 
@@ -11,7 +12,18 @@ interface Props {
 }
 
 export function SectionRenderer({ loading, error, payload }: Props) {
-  if (loading) return <ActivityIndicator style={styles.center} />;
+  if (loading) {
+    return (
+      <View>
+        {Array.from({ length: 5 }).map((_, i) => (
+          <View key={i} style={styles.row}>
+            <Skeleton width="35%" height={11} style={{ marginBottom: 6 }} />
+            <Skeleton width="60%" height={14} />
+          </View>
+        ))}
+      </View>
+    );
+  }
   if (error) return <Text style={styles.error}>{error}</Text>;
   if (!payload) return null;
 
@@ -65,7 +77,6 @@ export function SectionRenderer({ loading, error, payload }: Props) {
 }
 
 const styles = StyleSheet.create({
-  center: { marginTop: 24 },
   error: { color: semantic.destructive.fg, padding: 16 },
   row: { borderBottomWidth: 1, borderBottomColor: "#eee", paddingVertical: 10 },
   label: { fontSize: 12, color: "#666" },

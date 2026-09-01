@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
-import { View, Text, Pressable, StyleSheet, ActivityIndicator, FlatList } from "react-native";
+import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
+import { SkeletonScreen } from "../components/Skeleton";
 import type { PendingApprovalReturn } from "../type/attendance";
 import { getMyPendingApprovals, approveEmployeeRequest } from "../api/Attendance/AttendanceAPI";
 import { moduleColor, semantic } from "../theme";
+import Card from "../components/Card";
 
 const accent = moduleColor.attendance;
 
@@ -31,16 +33,16 @@ export default function PendingApprovalsScreen() {
     load();
   }
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 40 }} />;
+  if (loading) return <SkeletonScreen />;
 
   return (
     <FlatList
-      contentContainerStyle={{ padding: 16 }}
+      contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
       data={items}
       keyExtractor={(item) => String(item.requestId)}
       ListEmptyComponent={<Text style={styles.empty}>Nothing pending.</Text>}
       renderItem={({ item }) => (
-        <View style={styles.card}>
+        <Card style={styles.card}>
           <Text style={styles.type}>{item.requestType}</Text>
           <Text style={styles.employee}>{item.employeeName}</Text>
           <Text style={styles.payload}>{item.payloadJson}</Text>
@@ -61,7 +63,7 @@ export default function PendingApprovalsScreen() {
               <Text style={styles.approveText}>Approve</Text>
             </Pressable>
           </View>
-        </View>
+        </Card>
       )}
     />
   );
@@ -69,7 +71,7 @@ export default function PendingApprovalsScreen() {
 
 const styles = StyleSheet.create({
   empty: { textAlign: "center", color: "#666", marginTop: 24 },
-  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 12 },
+  card: { padding: 14, marginBottom: 12 },
   type: { fontSize: 12, color: accent.fg, fontWeight: "700", textTransform: "uppercase" },
   employee: { fontSize: 16, fontWeight: "600", marginTop: 4 },
   payload: { fontSize: 12, color: "#666", marginTop: 6 },

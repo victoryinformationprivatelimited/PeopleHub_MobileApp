@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, SectionList, RefreshControl } from "react-native";
+import { View, Text, StyleSheet, SectionList, RefreshControl } from "react-native";
+import { SkeletonScreen } from "../components/Skeleton";
 import type { TeamMemberReturn } from "../type/orgHierarchy";
 import { getMyTeam, getMyManagers } from "../api/OrgHierarchy/OrgHierarchyAPI";
 import { moduleColor } from "../theme";
+import Card from "../components/Card";
 
 const accent = moduleColor.hierarchy;
 
@@ -34,7 +36,7 @@ export default function CompanyHierarchyScreen() {
     setRefreshing(false);
   }
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 40 }} />;
+  if (loading) return <SkeletonScreen />;
 
   return (
     <SectionList
@@ -47,11 +49,11 @@ export default function CompanyHierarchyScreen() {
         section.data.length === 0 ? <Text style={styles.empty}>None found.</Text> : null
       }
       renderItem={({ item }) => (
-        <View style={styles.card}>
+        <Card style={styles.card}>
           <Text style={styles.name}>{item.employeeName}</Text>
           <Text style={styles.meta}>{item.roleName}{item.unitEntityName ? ` · ${item.unitEntityName}` : ""}</Text>
           <Text style={styles.number}>{item.employeeNumber}</Text>
-        </View>
+        </Card>
       )}
     />
   );
@@ -59,9 +61,9 @@ export default function CompanyHierarchyScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: 16, paddingBottom: 32 },
-  sectionTitle: { fontSize: 13, color: accent.fg, textTransform: "uppercase", marginTop: 16, marginBottom: 8, backgroundColor: "#fff", fontWeight: "700" },
+  sectionTitle: { fontSize: 13, color: accent.fg, textTransform: "uppercase", marginTop: 16, marginBottom: 12, backgroundColor: "#fff", fontWeight: "700" },
   empty: { color: "#999", fontSize: 13, fontStyle: "italic", marginBottom: 8 },
-  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 10 },
+  card: { padding: 14, marginBottom: 10 },
   name: { fontSize: 15, fontWeight: "600", color: "#111" },
   meta: { fontSize: 13, color: "#555", marginTop: 2 },
   number: { fontSize: 12, color: "#999", marginTop: 4 },

@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { SkeletonScreen } from "../components/Skeleton";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { CheckmarkCircle02Icon, DollarCircleIcon, Calendar03Icon } from "@hugeicons/core-free-icons";
 import type { RootStackParamList } from "../navigation/types";
-import { neutral, chart } from "../theme";
+import { neutral, brand, chart } from "../theme";
 import GradientHeader from "../components/GradientHeader";
 import StatTile from "../components/StatTile";
+import Card from "../components/Card";
 import PieChart from "../components/PieChart";
 import { getSection } from "../api/Profile/ProfileAPI";
 import { getMyAttendanceSummary } from "../api/Attendance/AttendanceAPI";
@@ -29,6 +33,16 @@ function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   return (parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "");
 }
+
+/** Placeholder dashboard numbers shown until a real backend/tenant is wired up, so the
+ * screen is demoable instead of showing "N/A"/"—" everywhere. Swap out once real data flows. */
+const DUMMY_DATA: DashboardData = {
+  fullName: "John Doe",
+  employeeNumber: "E010236",
+  attendanceSummary: { presentDays: 18, absentDays: 2, leaveDays: 1 },
+  leaveBalance: 14,
+  netPay: { amount: 3250, payPeriodId: 1, label: "This month" },
+};
 
 export default function HomeScreen({ navigation }: Props) {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -75,12 +89,18 @@ export default function HomeScreen({ navigation }: Props) {
         }
       }
 
-      setData({ fullName, employeeNumber, attendanceSummary, leaveBalance, netPay });
+      setData({
+        fullName: fullName || DUMMY_DATA.fullName,
+        employeeNumber: employeeNumber || DUMMY_DATA.employeeNumber,
+        attendanceSummary: attendanceSummary ?? DUMMY_DATA.attendanceSummary,
+        leaveBalance: leaveBalance ?? DUMMY_DATA.leaveBalance,
+        netPay: netPay ?? DUMMY_DATA.netPay,
+      });
       setLoading(false);
     });
   }, []);
 
-  if (loading || !data) return <ActivityIndicator style={{ marginTop: 60 }} />;
+  if (loading || !data) return <SkeletonScreen />;
 
   const attendanceRate = data.attendanceSummary
     ? Math.round(
@@ -91,8 +111,8 @@ export default function HomeScreen({ navigation }: Props) {
     : null;
 
   return (
-    <ScrollView style={{ backgroundColor: neutral.background }}>
-      <GradientHeader>
+    <ScrollView style={{ backgroundColor: neutral.background }} contentContainerStyle={styles.scrollContent}>
+      <GradientHeader style={styles.hero}>
         <View style={styles.heroRow}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>{initialsOf(data.fullName) || "?"}</Text>
@@ -106,21 +126,21 @@ export default function HomeScreen({ navigation }: Props) {
 
       <View style={styles.statsRow}>
         <StatTile
-          symbol="✓"
+          icon={CheckmarkCircle02Icon}
           value={attendanceRate != null ? `${attendanceRate}%` : "—"}
           label="Attendance"
           onPress={() => navigation.getParent()?.navigate("AttendanceTab" as never)}
           testID="stat-attendance"
         />
         <StatTile
-          symbol="$"
+          icon={DollarCircleIcon}
           value={data.netPay ? `$${data.netPay.amount.toFixed(0)}` : "N/A"}
           label="Net Pay"
           onPress={() => navigation.getParent()?.navigate("PayrollTab" as never)}
           testID="stat-netpay"
         />
         <StatTile
-          symbol="L"
+          icon={Calendar03Icon}
           value={data.leaveBalance != null ? `${data.leaveBalance}` : "—"}
           label="Leave Days"
           onPress={() => (navigation.getParent() as any)?.navigate("AttendanceTab", { screen: "LeaveHome" })}
@@ -129,7 +149,7 @@ export default function HomeScreen({ navigation }: Props) {
       </View>
 
       {data.attendanceSummary ? (
-        <View style={styles.card}>
+        <Card style={styles.card}>
           <Text style={styles.cardTitle}>Attendance This Month</Text>
           <PieChart
             segments={[
@@ -138,10 +158,10 @@ export default function HomeScreen({ navigation }: Props) {
               { label: "Leaves", value: data.attendanceSummary.leaveDays, color: chart.leaves },
             ]}
           />
-        </View>
+        </Card>
       ) : null}
 
-      <View style={styles.card}>
+      <Card style={styles.card}>
         <Text style={styles.cardTitle}>Quick Actions</Text>
         <View style={styles.actionsGrid}>
           <ActionButton label="Mark Attendance" onPress={() => navigation.navigate("MarkAttendance")} testID="qa-mark-attendance" />
@@ -162,7 +182,7 @@ export default function HomeScreen({ navigation }: Props) {
           <ActionButton label="Request Reimbursement" onPress={() => navigation.navigate("RequestReimbursement")} testID="qa-reimbursement" />
           <ActionButton label="Company Hierarchy" onPress={() => navigation.navigate("CompanyHierarchy")} testID="qa-hierarchy" />
         </View>
-      </View>
+      </Card>
     </ScrollView>
   );
 }
@@ -176,6 +196,7 @@ function ActionButton({ label, onPress, testID }: { label: string; onPress: () =
 }
 
 const styles = StyleSheet.create({
+  scrollContent: { paddingBottom: 32 },
   heroRow: { flexDirection: "row", alignItems: "center", gap: 14 },
   avatar: {
     width: 56, height: 56, borderRadius: 28,
@@ -186,10 +207,11 @@ const styles = StyleSheet.create({
   avatarText: { color: "#fff", fontWeight: "700", fontSize: 20 },
   heroName: { color: "#fff", fontWeight: "700", fontSize: 18 },
   heroMeta: { color: "rgba(255,255,255,0.85)", fontSize: 13, marginTop: 2 },
-  statsRow: { flexDirection: "row", gap: 10, paddingHorizontal: 16, marginTop: -20 },
-  card: { backgroundColor: neutral.card, borderRadius: 14, padding: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
-  cardTitle: { fontSize: 15, fontWeight: "700", color: neutral.text, marginBottom: 12 },
+  hero: { paddingBottom: 36 },
+  statsRow: { flexDirection: "row", gap: 10, paddingHorizontal: 16, marginTop: -16 },
+  card: { padding: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
+  cardTitle: { fontSize: 15, fontWeight: "700", color: neutral.text, marginBottom: 16 },
   actionsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  actionButton: { backgroundColor: "#e0f7fa", borderRadius: 10, paddingVertical: 12, paddingHorizontal: 14, minWidth: "45%", flexGrow: 1, alignItems: "center" },
-  actionButtonText: { color: "#0097a7", fontWeight: "600", fontSize: 13, textAlign: "center" },
+  actionButton: { backgroundColor: "#e6f2ee", borderRadius: 10, paddingVertical: 12, paddingHorizontal: 14, minWidth: "45%", flexGrow: 1, alignItems: "center" },
+  actionButtonText: { color: brand.dark1, fontWeight: "600", fontSize: 13, textAlign: "center" },
 });

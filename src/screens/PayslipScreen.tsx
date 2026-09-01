@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { SkeletonScreen } from "../components/Skeleton";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { PayslipReturn } from "../type/payroll";
 import { getMyPayslip } from "../api/Payroll/PayrollAPI";
 import { moduleColor, semantic } from "../theme";
 import BarChart from "../components/BarChart";
+import Card from "../components/Card";
 
 const accent = moduleColor.payroll;
 
@@ -26,7 +28,7 @@ export default function PayslipScreen({ route, navigation }: Props) {
     });
   }, [payPeriodId]);
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 40 }} />;
+  if (loading) return <SkeletonScreen />;
   if (error || !payslip) return <Text style={styles.error}>{error ?? "Payslip not found."}</Text>;
 
   return (
@@ -46,20 +48,20 @@ export default function PayslipScreen({ route, navigation }: Props) {
       ) : (
         <>
           {payslip.earnings.length + payslip.deductions.length > 0 ? (
-            <View style={styles.card}>
+            <Card style={styles.card}>
               <Text style={styles.cardTitle}>Earnings Breakdown</Text>
               <BarChart
                 data={[...payslip.earnings, ...payslip.deductions].map((item) => ({ label: item.label, value: item.amount }))}
               />
-            </View>
+            </Card>
           ) : null}
           <LineItemSection title="Earnings" items={payslip.earnings} />
           <LineItemSection title="Deductions" items={payslip.deductions} />
-          <View style={styles.totalsCard}>
+          <Card style={styles.totalsCard}>
             <TotalRow label="Gross pay" value={payslip.grossPay} />
             <TotalRow label="Total deductions" value={payslip.totalDeductions} />
             <TotalRow label="Net pay" value={payslip.netPay} emphasize />
-          </View>
+          </Card>
         </>
       )}
     </ScrollView>
@@ -69,7 +71,7 @@ export default function PayslipScreen({ route, navigation }: Props) {
 function LineItemSection({ title, items }: { title: string; items: { label: string; amount: number }[] }) {
   if (items.length === 0) return null;
   return (
-    <View style={styles.card}>
+    <Card style={styles.card}>
       <Text style={styles.cardTitle}>{title}</Text>
       {items.map((item, i) => (
         <View key={i} style={styles.lineRow}>
@@ -77,7 +79,7 @@ function LineItemSection({ title, items }: { title: string; items: { label: stri
           <Text style={styles.lineAmount}>{item.amount.toFixed(2)}</Text>
         </View>
       ))}
-    </View>
+    </Card>
   );
 }
 
@@ -91,16 +93,16 @@ function TotalRow({ label, value, emphasize }: { label: string; value: number; e
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 12 },
+  container: { padding: 16, paddingBottom: 28, gap: 12 },
   error: { textAlign: "center", color: "#b3261e", marginTop: 40, paddingHorizontal: 24 },
   header: { marginBottom: 8 },
   employeeName: { fontSize: 18, fontWeight: "700", color: "#111" },
   meta: { fontSize: 13, color: "#666", marginTop: 2 },
   notConfiguredCard: { backgroundColor: semantic.warning.bg, borderRadius: 12, padding: 16 },
   notConfiguredText: { color: semantic.warning.fg, fontSize: 14, lineHeight: 20 },
-  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14 },
-  cardTitle: { fontSize: 13, color: accent.fg, textTransform: "uppercase", marginBottom: 8, fontWeight: "700" },
-  totalsCard: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginTop: 4 },
+  card: { padding: 14 },
+  cardTitle: { fontSize: 13, color: accent.fg, textTransform: "uppercase", marginBottom: 12, fontWeight: "700" },
+  totalsCard: { padding: 14, marginTop: 4 },
   lineRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 4 },
   lineLabel: { fontSize: 14, color: "#333" },
   lineAmount: { fontSize: 14, color: "#111", fontWeight: "600" },

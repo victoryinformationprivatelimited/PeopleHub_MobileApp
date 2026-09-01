@@ -20,7 +20,7 @@ export default function ProfileSectionScreen({ route, navigation }: Props) {
   }, [sectionId]);
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
+    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }}>
       <SectionRenderer
         loading={section?.loading ?? true}
         error={section?.error ?? null}

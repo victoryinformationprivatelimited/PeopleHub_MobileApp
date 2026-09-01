@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, FlatList } from "react-native";
+import { View, Text, StyleSheet, FlatList } from "react-native";
+import { SkeletonScreen } from "../components/Skeleton";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { LeaveRequestReturn } from "../type/leave";
 import { getMyPendingLeaves, getMyApprovedLeaves, getMyRejectedLeaves } from "../api/Leave/LeaveAPI";
 import { moduleColor } from "../theme";
+import Card from "../components/Card";
 
 const accent = moduleColor.leave;
 
@@ -29,16 +31,16 @@ export default function LeaveRequestsScreen({ route, navigation }: Props) {
     });
   }, [status]);
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 40 }} />;
+  if (loading) return <SkeletonScreen />;
 
   return (
     <FlatList
-      contentContainerStyle={{ padding: 16 }}
+      contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
       data={items}
       keyExtractor={(item) => String(item.leaveRequestId)}
       ListEmptyComponent={<Text style={styles.empty}>No {status.toLowerCase()} leave requests.</Text>}
       renderItem={({ item }) => (
-        <View style={styles.card}>
+        <Card style={styles.card}>
           <Text style={styles.type}>{item.leaveTypeName}</Text>
           <Text style={styles.dates}>{item.fromDate} → {item.toDate} ({item.totalDays} day{item.totalDays === 1 ? "" : "s"})</Text>
           {item.reason ? <Text style={styles.reason}>{item.reason}</Text> : null}
@@ -51,7 +53,7 @@ export default function LeaveRequestsScreen({ route, navigation }: Props) {
           {status === "Rejected" && item.rejectedByName ? (
             <Text style={styles.meta}>Rejected by {item.rejectedByName}{item.rejectReason ? `: ${item.rejectReason}` : ""}</Text>
           ) : null}
-        </View>
+        </Card>
       )}
     />
   );
@@ -59,7 +61,7 @@ export default function LeaveRequestsScreen({ route, navigation }: Props) {
 
 const styles = StyleSheet.create({
   empty: { textAlign: "center", color: "#666", marginTop: 24 },
-  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 10 },
+  card: { padding: 14, marginBottom: 10 },
   type: { fontSize: 12, color: accent.fg, fontWeight: "700", textTransform: "uppercase" },
   dates: { fontSize: 15, fontWeight: "600", color: "#111", marginTop: 4 },
   reason: { fontSize: 13, color: "#555", marginTop: 4 },

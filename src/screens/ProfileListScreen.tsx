@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { SectionList, Text, Pressable, View, StyleSheet } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 import { setLoggedOut } from "../store/authSlice";
@@ -10,6 +12,7 @@ import { SECTION_GROUPS } from "../type/sectionMeta";
 import type { RootStackParamList } from "../navigation/types";
 import { moduleColor, semantic } from "../theme";
 import GradientHeader from "../components/GradientHeader";
+import Card from "../components/Card";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ProfileList">;
 
@@ -51,6 +54,7 @@ export default function ProfileListScreen({ navigation }: Props) {
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingBottom: 32 }}
         ListHeaderComponent={
           <>
             <GradientHeader>
@@ -64,8 +68,13 @@ export default function ProfileListScreen({ navigation }: Props) {
                 </View>
               </View>
             </GradientHeader>
-            <Pressable style={styles.hierarchyLink} onPress={() => navigation.navigate("CompanyHierarchy")} testID="profile-hierarchy-link">
-              <Text style={styles.hierarchyLinkText}>View Company Hierarchy →</Text>
+            <Pressable onPress={() => navigation.navigate("CompanyHierarchy")} testID="profile-hierarchy-link">
+              <Card style={styles.hierarchyLink}>
+                <View style={styles.hierarchyLinkRow}>
+                  <Text style={styles.hierarchyLinkText}>View Company Hierarchy</Text>
+                  <HugeiconsIcon icon={ArrowRight02Icon} size={16} color={moduleColor.profile.fg} strokeWidth={1.8} />
+                </View>
+              </Card>
             </Pressable>
           </>
         }
@@ -99,7 +108,8 @@ const styles = StyleSheet.create({
   avatarText: { color: "#fff", fontWeight: "700", fontSize: 20 },
   heroName: { color: "#fff", fontWeight: "700", fontSize: 18 },
   heroMeta: { color: "rgba(255,255,255,0.85)", fontSize: 13, marginTop: 2 },
-  hierarchyLink: { backgroundColor: moduleColor.profile.bg, margin: 16, padding: 14, borderRadius: 10, alignItems: "center" },
+  hierarchyLink: { margin: 16, padding: 14, borderRadius: 10 },
+  hierarchyLinkRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 },
   hierarchyLinkText: { color: moduleColor.profile.fg, fontWeight: "600" },
   header: { backgroundColor: moduleColor.profile.bg, paddingHorizontal: 16, paddingVertical: 6, fontSize: 12, fontWeight: "700", color: moduleColor.profile.fg },
   row: { paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: "#eee" },

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { View, Text, Pressable, TextInput, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { SkeletonScreen } from "../components/Skeleton";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { LeaveEntitlementReturn, AvailableShiftReturn, CoveringPersonReturn, ApplyLeaveReq } from "../type/leave";
@@ -71,7 +72,7 @@ export default function ApplyLeaveScreen({ navigation }: Props) {
     if (response.success) setTimeout(() => navigation.goBack(), 1000);
   }
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 40 }} />;
+  if (loading) return <SkeletonScreen />;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

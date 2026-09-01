@@ -3,6 +3,8 @@ import { View, Text, Pressable, StyleSheet, Image, ActivityIndicator, TextInput 
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as Location from "expo-location";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { CheckmarkCircle02Icon } from "@hugeicons/core-free-icons";
 import type { RootStackParamList } from "../navigation/types";
 import { markAttendance } from "../api/Attendance/AttendanceAPI";
 import { moduleColor, semantic } from "../theme";
@@ -99,7 +101,14 @@ export default function MarkAttendanceScreen({ navigation }: Props) {
         )}
 
         <Pressable style={styles.button} onPress={captureLocation} testID="location-button">
-          <Text style={styles.buttonText}>{location ? "Location captured ✓" : "Capture location"}</Text>
+          {location ? (
+            <View style={styles.buttonRow}>
+              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} color="#fff" strokeWidth={1.8} />
+              <Text style={styles.buttonText}>Location captured</Text>
+            </View>
+          ) : (
+            <Text style={styles.buttonText}>Capture location</Text>
+          )}
         </Pressable>
         {locationError ? <Text style={styles.error}>{locationError}</Text> : null}
 
@@ -126,6 +135,7 @@ const styles = StyleSheet.create({
   preview: { height: 280, backgroundColor: "#000" },
   controls: { padding: 16, gap: 10 },
   button: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 12, alignItems: "center" },
+  buttonRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   buttonText: { color: "#fff", fontWeight: "600" },
   secondaryButton: { backgroundColor: "#f1f3f5", borderRadius: 8, paddingVertical: 12, alignItems: "center" },
   secondaryButtonText: { color: "#333", fontWeight: "600" },

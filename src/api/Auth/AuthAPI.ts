@@ -7,10 +7,10 @@ export interface LoginResult {
   message?: string;
 }
 
-export async function login(usernameOrEmail: string, password: string): Promise<LoginResult> {
+export async function login(usernameOrEmail: string, password: string, rememberMe: boolean): Promise<LoginResult> {
   const result = await apiClient.post<any>(
-    "/api/User/login",
-    { UsernameOrEmail: usernameOrEmail, Password: password, Rememberme: true },
+    "/api/User/MobileLogin",
+    { usernameOrEmail, password, rememberme: rememberMe },
     { skipAuth: true },
   );
 

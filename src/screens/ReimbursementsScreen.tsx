@@ -1,10 +1,12 @@
 import { useEffect, useState, useCallback } from "react";
-import { View, Text, Pressable, StyleSheet, ActivityIndicator, FlatList, RefreshControl } from "react-native";
+import { View, Text, Pressable, StyleSheet, FlatList, RefreshControl } from "react-native";
+import { SkeletonScreen } from "../components/Skeleton";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { ReimbursementReturn } from "../type/payroll";
 import { getMyReimbursements } from "../api/Payroll/PayrollAPI";
 import { moduleColor } from "../theme";
+import Card from "../components/Card";
 
 const accent = moduleColor.payroll;
 
@@ -30,7 +32,7 @@ export default function ReimbursementsScreen({ navigation }: Props) {
     setRefreshing(false);
   }
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 40 }} />;
+  if (loading) return <SkeletonScreen />;
 
   return (
     <FlatList
@@ -49,7 +51,7 @@ export default function ReimbursementsScreen({ navigation }: Props) {
       }
       ListEmptyComponent={<Text style={styles.empty}>No reimbursement requests yet.</Text>}
       renderItem={({ item }) => (
-        <View style={styles.card}>
+        <Card style={styles.card}>
           <View style={styles.rowBetween}>
             <Text style={styles.type}>{item.reimbursementType}</Text>
             <Text style={styles.amount}>{item.amount.toFixed(2)}</Text>
@@ -58,18 +60,18 @@ export default function ReimbursementsScreen({ navigation }: Props) {
           {item.payPeriodLabel ? <Text style={styles.meta}>Pay period: {item.payPeriodLabel}</Text> : null}
           {item.documentName ? <Text style={styles.meta}>Receipt: {item.documentName}</Text> : null}
           <Text style={styles.status}>{item.status}</Text>
-        </View>
+        </Card>
       )}
     />
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 10 },
+  container: { padding: 16, paddingBottom: 28, gap: 10 },
   requestButton: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginBottom: 16 },
   requestButtonText: { color: "#fff", fontWeight: "600" },
   empty: { textAlign: "center", color: "#666", marginTop: 24 },
-  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 10 },
+  card: { padding: 14, marginBottom: 10 },
   rowBetween: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   type: { fontSize: 12, color: accent.fg, fontWeight: "700", textTransform: "uppercase" },
   amount: { fontSize: 16, fontWeight: "700", color: "#111" },

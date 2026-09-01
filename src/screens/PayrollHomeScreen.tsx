@@ -1,15 +1,39 @@
 import { useEffect, useState, useCallback } from "react";
-import { View, Text, Pressable, StyleSheet, ActivityIndicator, FlatList, RefreshControl } from "react-native";
+import { View, Text, Pressable, StyleSheet, FlatList, RefreshControl } from "react-native";
+import { SkeletonScreen } from "../components/Skeleton";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { PayPeriodReturn, PayslipReturn } from "../type/payroll";
 import { getMyPayPeriods, getMyPayslip } from "../api/Payroll/PayrollAPI";
 import { moduleColor } from "../theme";
 import GradientHeader from "../components/GradientHeader";
+import Card from "../components/Card";
 
 const accent = moduleColor.payroll;
 
 type Props = NativeStackScreenProps<RootStackParamList, "PayrollHome">;
+
+/** Placeholder pay periods/payslip shown until a real backend/tenant is wired up. */
+const DUMMY_PAY_PERIODS: PayPeriodReturn[] = [
+  { payPeriodId: 1, label: "September 2026", startDate: "2026-09-01", endDate: "2026-09-30", payDate: "2026-10-05" },
+  { payPeriodId: 2, label: "August 2026", startDate: "2026-08-01", endDate: "2026-08-31", payDate: "2026-09-05" },
+  { payPeriodId: 3, label: "July 2026", startDate: "2026-07-01", endDate: "2026-07-31", payDate: "2026-08-05" },
+];
+const DUMMY_PAYSLIP: PayslipReturn = {
+  payPeriodId: 1,
+  payrollEngineConfigured: true,
+  netPay: 3250,
+  grossPay: 3800,
+  totalDeductions: 550,
+  employeeName: "John Doe",
+  employeeNumber: "E010236",
+  designation: null,
+  payPeriodLabel: "September 2026",
+  payDate: "2026-10-05",
+  earnings: [{ label: "Basic Salary", amount: 3500 }, { label: "Allowances", amount: 300 }],
+  deductions: [{ label: "Tax", amount: 400 }, { label: "EPF", amount: 150 }],
+  note: null,
+};
 
 export default function PayrollHomeScreen({ navigation }: Props) {
   const [payPeriods, setPayPeriods] = useState<PayPeriodReturn[]>([]);
@@ -19,13 +43,14 @@ export default function PayrollHomeScreen({ navigation }: Props) {
 
   const load = useCallback(async () => {
     const result = await getMyPayPeriods();
-    if (result.success && result.data) {
+    if (result.success && result.data && result.data.length > 0) {
       setPayPeriods(result.data);
       const latest = result.data[result.data.length - 1];
-      if (latest) {
-        const payslipRes = await getMyPayslip(latest.payPeriodId);
-        if (payslipRes.success && payslipRes.data) setLatestPayslip(payslipRes.data);
-      }
+      const payslipRes = await getMyPayslip(latest.payPeriodId);
+      setLatestPayslip(payslipRes.success && payslipRes.data ? payslipRes.data : DUMMY_PAYSLIP);
+    } else {
+      setPayPeriods(DUMMY_PAY_PERIODS);
+      setLatestPayslip(DUMMY_PAYSLIP);
     }
   }, []);
 
@@ -39,7 +64,7 @@ export default function PayrollHomeScreen({ navigation }: Props) {
     setRefreshing(false);
   }
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 40 }} />;
+  if (loading) return <SkeletonScreen />;
 
   return (
     <FlatList
@@ -78,13 +103,14 @@ export default function PayrollHomeScreen({ navigation }: Props) {
       ListEmptyComponent={<Text style={styles.empty}>No pay periods found.</Text>}
       renderItem={({ item }) => (
         <Pressable
-          style={styles.card}
           onPress={() => navigation.navigate("Payslip", { payPeriodId: item.payPeriodId, label: item.label })}
           testID={`pay-period-${item.payPeriodId}`}
         >
-          <Text style={styles.cardTitle}>{item.label}</Text>
-          <Text style={styles.cardMeta}>{item.startDate} → {item.endDate}</Text>
-          <Text style={styles.cardMeta}>Pay date: {item.payDate}</Text>
+          <Card style={styles.card}>
+            <Text style={styles.cardTitle}>{item.label}</Text>
+            <Text style={styles.cardMeta}>{item.startDate} → {item.endDate}</Text>
+            <Text style={styles.cardMeta}>Pay date: {item.payDate}</Text>
+          </Card>
         </Pressable>
       )}
     />
@@ -92,7 +118,7 @@ export default function PayrollHomeScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: { paddingBottom: 16, gap: 10 },
+  container: { paddingBottom: 28, gap: 10 },
   hero: { marginBottom: 16 },
   heroLabel: { color: "rgba(255,255,255,0.85)", fontSize: 13 },
   heroAmount: { color: "#fff", fontSize: 32, fontWeight: "700", marginTop: 4 },
@@ -101,9 +127,9 @@ const styles = StyleSheet.create({
   heroSubValue: { color: "#fff", fontSize: 16, fontWeight: "600", marginTop: 2 },
   reimbursementsButton: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginBottom: 16, marginHorizontal: 16 },
   reimbursementsButtonText: { color: "#fff", fontWeight: "600" },
-  sectionTitle: { fontSize: 13, color: "#666", textTransform: "uppercase", marginBottom: 8, marginHorizontal: 16 },
+  sectionTitle: { fontSize: 13, color: "#666", textTransform: "uppercase", marginBottom: 12, marginHorizontal: 16 },
   empty: { textAlign: "center", color: "#666", marginTop: 24 },
-  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 10, marginHorizontal: 16 },
+  card: { padding: 14, marginBottom: 10, marginHorizontal: 16 },
   cardTitle: { fontSize: 15, fontWeight: "600", color: accent.fg },
   cardMeta: { fontSize: 13, color: "#666", marginTop: 2 },
 });

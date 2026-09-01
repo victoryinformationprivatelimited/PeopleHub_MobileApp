@@ -1,42 +1,45 @@
 /**
- * Ported from the PeopleHub Mobile App UI Figma Make design
- * (figma.com/make/fIq8xc8buuDJR3pp02otf3, "Update color scheme to blue" — Version 3), which the
- * team designed as the real target look for this app. Single cyan/teal brand instead of the
- * per-module rainbow this file used before — one identity, used consistently everywhere.
+ * Brand identity ported from PeopleHub-ESS's design tokens (src/index.css's
+ * `:root` — the matte teal-green pulled from the PeopleHub logo), replacing
+ * this app's earlier standalone cyan/blue Figma identity so mobile matches
+ * the ESS web app's actual palette. Structure (solid/light1/light2/dark1/
+ * dark2/gradient) is unchanged so none of the ~19 files importing these
+ * need to change — only the values do.
  */
 
 export const brand = {
-  solid: "#00bcd4",
-  light1: "#26c6da",
-  light2: "#4dd0e1",
-  dark1: "#00acc1",
-  dark2: "#0097a7",
-  /** Hero/header gradient endpoints, matching the mockup's Home/Payroll/Profile hero blocks. */
-  gradient: ["#00bcd4", "#0097a7"] as const,
+  solid: "#4f9b83",
+  light1: "#5aab8f",
+  light2: "#8fd0b3",
+  dark1: "#3d7c68",
+  /** Third stop of PeopleHub-ESS's AuthLayout gradient (rgba(44,74,64,...)) — the darkest
+   * green in the ESS palette, used for hero-gradient bottoms and login backgrounds. */
+  dark2: "#2c4a40",
+  /** Matches PeopleHub-ESS/src/components/Layout/AuthLayout.tsx's panel gradient stops. */
+  gradient: ["#5aab8f", "#3d7c68", "#2c4a40"] as const,
 };
 
 export const neutral = {
-  background: "#f5f7fa",
+  background: "#f7f7f8",
   card: "#ffffff",
-  text: "#14181f",
-  textMuted: "#717182",
-  textFaint: "#9a99a6",
-  border: "rgba(0,0,0,0.08)",
+  text: "#1f2328",
+  textMuted: "#6b7280",
+  textFaint: "#9aa3ad",
+  border: "rgba(31, 35, 40, 0.1)",
 };
 
-/** Semantic tile pairs, unchanged in meaning from before — status colors stay status colors
- * regardless of brand hue, since red-for-destructive/green-for-success are universal, not brand. */
+/** Ported from PeopleHub-ESS/src/index.css's semantic tokens (light theme). */
 export const semantic = {
-  info: { bg: "#e6f1fb", fg: "#185fa5", solid: "#0092fc" },
-  success: { bg: "#eaf3de", fg: "#27500a", solid: "#198754" },
-  warning: { bg: "#fef3c7", fg: "#92400e", solid: "#d97706" },
-  destructive: { bg: "#fcebeb", fg: "#a32d2d", solid: "#d4183d" },
+  info: { bg: "#eef1f5", fg: "#3b4a5a", solid: "#3b4a5a" },
+  success: { bg: "#eafaf0", fg: "#167a4c", solid: "#167a4c" },
+  warning: { bg: "#fff4e5", fg: "#9a5b0a", solid: "#9a5b0a" },
+  destructive: { bg: "#fdecec", fg: "#b3261e", solid: "#b3261e" },
 };
 
-/** Every module now shares the single brand color/tint — matches the mockup, which has one
- * consistent teal identity rather than a color per section. Kept as a map (not a flat constant)
+/** Every module now shares the single brand color/tint — matches PeopleHub-ESS, which has one
+ * consistent green identity rather than a color per section. Kept as a map (not a flat constant)
  * so screens don't need to change their `accent.bg`/`accent.fg`/`accent.solid` call sites. */
-const brandTile = { bg: "#e0f7fa", fg: brand.dark2, solid: brand.solid };
+const brandTile = { bg: "#e6f2ee", fg: brand.dark1, solid: brand.solid };
 export const moduleColor = {
   profile: brandTile,
   attendance: brandTile,
@@ -45,10 +48,10 @@ export const moduleColor = {
   hierarchy: brandTile,
 };
 
-/** Data-viz palette — Present/Absent/Leaves in the mockup's attendance pie chart use semantic
- * status colors (green/red/teal), not the brand hue, so charts stay readable at a glance. */
+/** Data-viz palette — Present/Absent/Leaves use semantic status colors (green/red/brand),
+ * so charts stay readable at a glance regardless of the brand hue. */
 export const chart = {
-  present: "#16a34a",
+  present: semantic.success.solid,
   absent: "#e11d48",
   leaves: brand.solid,
 };

@@ -1,8 +1,9 @@
 import { useEffect } from "react";
-import { View, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator, type NativeStackNavigationOptions } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react-native";
+import { Home03Icon, Calendar03Icon, Wallet01Icon, User03Icon } from "@hugeicons/core-free-icons";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store";
 import { checkExistingSession } from "../store/authSlice";
@@ -82,14 +83,10 @@ function ProfileTabStack() {
   );
 }
 
-/** Plain-text tab icon substitutes — no icon library in this project (see theme.ts's badge-letter
- * pattern for the same reasoning). Active tab gets the brand color, inactive stays muted grey. */
-function TabIcon({ symbol, focused }: { symbol: string; focused: boolean }) {
-  return (
-    <View>
-      <Text style={{ fontSize: 18, color: focused ? brand.solid : neutral.textMuted }}>{symbol}</Text>
-    </View>
-  );
+/** HugeIcons tab glyphs, replacing the old plain-text symbol substitutes. Active tab gets the
+ * brand color, inactive stays muted grey. */
+function TabIcon({ icon, focused }: { icon: IconSvgElement; focused: boolean }) {
+  return <HugeiconsIcon icon={icon} size={20} color={focused ? brand.solid : neutral.textMuted} strokeWidth={1.8} />;
 }
 
 function MainTabs() {
@@ -99,27 +96,28 @@ function MainTabs() {
         headerShown: false,
         tabBarActiveTintColor: brand.solid,
         tabBarInactiveTintColor: neutral.textMuted,
+        tabBarStyle: { backgroundColor: neutral.card, borderTopColor: neutral.border },
       }}
     >
       <Tab.Screen
         name="HomeTab"
         component={HomeTabStack}
-        options={{ title: "Home", tabBarIcon: ({ focused }) => <TabIcon symbol="⌂" focused={focused} /> }}
+        options={{ title: "Home", tabBarIcon: ({ focused }) => <TabIcon icon={Home03Icon} focused={focused} /> }}
       />
       <Tab.Screen
         name="AttendanceTab"
         component={AttendanceTabStack}
-        options={{ title: "Attendance", tabBarIcon: ({ focused }) => <TabIcon symbol="🗓" focused={focused} /> }}
+        options={{ title: "Attendance", tabBarIcon: ({ focused }) => <TabIcon icon={Calendar03Icon} focused={focused} /> }}
       />
       <Tab.Screen
         name="PayrollTab"
         component={PayrollTabStack}
-        options={{ title: "Payroll", tabBarIcon: ({ focused }) => <TabIcon symbol="$" focused={focused} /> }}
+        options={{ title: "Payroll", tabBarIcon: ({ focused }) => <TabIcon icon={Wallet01Icon} focused={focused} /> }}
       />
       <Tab.Screen
         name="ProfileTab"
         component={ProfileTabStack}
-        options={{ title: "Profile", tabBarIcon: ({ focused }) => <TabIcon symbol="☺" focused={focused} /> }}
+        options={{ title: "Profile", tabBarIcon: ({ focused }) => <TabIcon icon={User03Icon} focused={focused} /> }}
       />
     </Tab.Navigator>
   );

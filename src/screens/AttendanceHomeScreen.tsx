@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { View, Text, Pressable, StyleSheet, ActivityIndicator, ScrollView } from "react-native";
+import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { SkeletonScreen } from "../components/Skeleton";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { RosterReturn, AttendanceSummaryReturn } from "../type/attendance";
 import { getMyRoster, getMyAttendanceSummary } from "../api/Attendance/AttendanceAPI";
 import { moduleColor, chart } from "../theme";
 import PieChart from "../components/PieChart";
+import Card from "../components/Card";
 
 const accent = moduleColor.attendance;
 
@@ -32,11 +34,11 @@ export default function AttendanceHomeScreen({ navigation }: Props) {
     });
   }, []);
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 40 }} />;
+  if (loading) return <SkeletonScreen />;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.card}>
+      <Card style={styles.card}>
         <Text style={styles.cardTitle}>Today's roster</Text>
         {roster?.workPatternName ? (
           <>
@@ -47,9 +49,9 @@ export default function AttendanceHomeScreen({ navigation }: Props) {
         ) : (
           <Text style={styles.lineMuted}>No roster assigned for today.</Text>
         )}
-      </View>
+      </Card>
 
-      <View style={styles.card}>
+      <Card style={styles.card}>
         <Text style={styles.cardTitle}>This month</Text>
         {summary ? (
           <PieChart
@@ -65,7 +67,7 @@ export default function AttendanceHomeScreen({ navigation }: Props) {
           <SummaryStat label="Holidays" value={summary?.holidayDays} />
           <SummaryStat label="Weekends" value={summary?.weekendDays} />
         </View>
-      </View>
+      </Card>
 
       <Pressable style={styles.button} onPress={() => navigation.navigate("MarkAttendance")} testID="mark-attendance-button">
         <Text style={styles.buttonText}>Mark attendance</Text>
@@ -90,9 +92,9 @@ function SummaryStat({ label, value }: { label: string; value: number | undefine
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 16 },
-  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 16 },
-  cardTitle: { fontSize: 13, color: accent.fg, marginBottom: 8, textTransform: "uppercase", fontWeight: "700" },
+  container: { padding: 16, paddingBottom: 28, gap: 16 },
+  card: { padding: 16 },
+  cardTitle: { fontSize: 13, color: accent.fg, marginBottom: 12, textTransform: "uppercase", fontWeight: "700" },
   line: { fontSize: 16, fontWeight: "600", color: "#111" },
   lineMuted: { fontSize: 14, color: "#555", marginTop: 2 },
   summaryRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 16 },

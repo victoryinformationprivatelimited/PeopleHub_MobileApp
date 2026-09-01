@@ -1,11 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
-import { View, Text, Pressable, StyleSheet, ActivityIndicator, FlatList, RefreshControl } from "react-native";
+import { View, Text, Pressable, StyleSheet, FlatList, RefreshControl } from "react-native";
+import { SkeletonScreen } from "../components/Skeleton";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { LeaveEntitlementReturn } from "../type/leave";
 import { getMyLeaveEntitlements } from "../api/Leave/LeaveAPI";
 import { moduleColor } from "../theme";
 import GradientHeader from "../components/GradientHeader";
+import Card from "../components/Card";
 
 const accent = moduleColor.leave;
 
@@ -31,7 +33,7 @@ export default function LeaveHomeScreen({ navigation }: Props) {
     setRefreshing(false);
   }
 
-  if (loading) return <ActivityIndicator style={{ marginTop: 40 }} />;
+  if (loading) return <SkeletonScreen />;
 
   const totalBalance = entitlements.reduce((sum, e) => sum + e.balanceDays, 0);
 
@@ -60,7 +62,7 @@ export default function LeaveHomeScreen({ navigation }: Props) {
       }
       ListEmptyComponent={<Text style={styles.empty}>No leave entitlements found.</Text>}
       renderItem={({ item }) => (
-        <View style={styles.card}>
+        <Card style={styles.card}>
           <Text style={styles.cardTitle}>{item.leaveTypeName}</Text>
           <View style={styles.row}>
             <Stat label="Entitled" value={item.entitledDays} />
@@ -68,7 +70,7 @@ export default function LeaveHomeScreen({ navigation }: Props) {
             <Stat label="Pending" value={item.pendingDays} />
             <Stat label="Balance" value={item.balanceDays} />
           </View>
-        </View>
+        </Card>
       )}
     />
   );
@@ -92,7 +94,7 @@ function Stat({ label, value }: { label: string; value: number }) {
 }
 
 const styles = StyleSheet.create({
-  container: { paddingBottom: 16, gap: 12 },
+  container: { paddingBottom: 28, gap: 12 },
   hero: { marginBottom: 16 },
   heroLabel: { color: "rgba(255,255,255,0.85)", fontSize: 13 },
   heroAmount: { color: "#fff", fontSize: 28, fontWeight: "700", marginTop: 4 },
@@ -101,9 +103,9 @@ const styles = StyleSheet.create({
   tabsRow: { flexDirection: "row", gap: 8, marginBottom: 16, marginHorizontal: 16 },
   tab: { flex: 1, backgroundColor: accent.bg, borderRadius: 8, paddingVertical: 10, alignItems: "center" },
   tabText: { color: accent.fg, fontWeight: "600", fontSize: 13 },
-  sectionTitle: { fontSize: 13, color: "#666", textTransform: "uppercase", marginBottom: 8, marginHorizontal: 16 },
+  sectionTitle: { fontSize: 13, color: "#666", textTransform: "uppercase", marginBottom: 12, marginHorizontal: 16 },
   empty: { textAlign: "center", color: "#666", marginTop: 24 },
-  card: { backgroundColor: accent.bg, borderRadius: 12, padding: 14, marginBottom: 10, marginHorizontal: 16 },
+  card: { padding: 14, marginBottom: 10, marginHorizontal: 16 },
   cardTitle: { fontSize: 15, fontWeight: "600", color: accent.fg, marginBottom: 8 },
   row: { flexDirection: "row", justifyContent: "space-between" },
   stat: { alignItems: "center" },
