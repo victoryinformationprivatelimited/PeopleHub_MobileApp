@@ -6,6 +6,8 @@ import type { RootStackParamList } from "../navigation/types";
 import type { PayPeriodReturn, RequestReimbursementReq } from "../type/payroll";
 import { getMyPayPeriods, requestReimbursement } from "../api/Payroll/PayrollAPI";
 import { moduleColor, semantic } from "../theme";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { Camera01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
 
 const accent = moduleColor.payroll;
 
@@ -66,11 +68,21 @@ export default function RequestReimbursementScreen({ navigation }: Props) {
     if (!permission?.granted) {
       return (
         <View style={styles.center}>
+          <View style={styles.permissionIconBadge}>
+            <HugeiconsIcon icon={Camera01Icon} size={28} color={accent.fg} strokeWidth={1.6} />
+          </View>
           <Text style={styles.info}>Camera access is needed to attach a receipt photo.</Text>
-          <Pressable style={styles.button} onPress={requestPermission}>
+          <Pressable
+            style={({ pressed }) => [styles.button, styles.buttonPrimary, pressed && styles.pressed]}
+            onPress={requestPermission}
+          >
+            <HugeiconsIcon icon={Camera01Icon} size={17} color="#fff" strokeWidth={1.8} />
             <Text style={styles.buttonText}>Grant camera permission</Text>
           </Pressable>
-          <Pressable style={styles.secondaryButton} onPress={() => setShowCamera(false)}>
+          <Pressable
+            style={({ pressed }) => [styles.button, styles.buttonSecondary, pressed && styles.pressed]}
+            onPress={() => setShowCamera(false)}
+          >
             <Text style={styles.secondaryButtonText}>Cancel</Text>
           </Pressable>
         </View>
@@ -80,10 +92,18 @@ export default function RequestReimbursementScreen({ navigation }: Props) {
       <View style={{ flex: 1 }}>
         <CameraView ref={cameraRef} style={{ flex: 1 }} facing="back" />
         <View style={styles.controls}>
-          <Pressable style={styles.button} onPress={capturePhoto} testID="capture-receipt-button">
+          <Pressable
+            style={({ pressed }) => [styles.button, styles.buttonPrimary, pressed && styles.pressed]}
+            onPress={capturePhoto}
+            testID="capture-receipt-button"
+          >
+            <HugeiconsIcon icon={Camera01Icon} size={17} color="#fff" strokeWidth={1.8} />
             <Text style={styles.buttonText}>Take photo</Text>
           </Pressable>
-          <Pressable style={styles.secondaryButton} onPress={() => setShowCamera(false)}>
+          <Pressable
+            style={({ pressed }) => [styles.button, styles.buttonSecondary, pressed && styles.pressed]}
+            onPress={() => setShowCamera(false)}
+          >
             <Text style={styles.secondaryButtonText}>Cancel</Text>
           </Pressable>
         </View>
@@ -129,19 +149,33 @@ export default function RequestReimbursementScreen({ navigation }: Props) {
       {photoUri ? (
         <View>
           <Image source={{ uri: photoUri }} style={styles.preview} />
-          <Pressable style={styles.secondaryButton} onPress={() => setPhotoUri(null)}>
-            <Text style={styles.secondaryButtonText}>Remove photo</Text>
+          <Pressable
+            style={({ pressed }) => [styles.button, styles.buttonSecondary, pressed && styles.pressed]}
+            onPress={() => setPhotoUri(null)}
+          >
+            <HugeiconsIcon icon={Delete02Icon} size={16} color={semantic.destructive.fg} strokeWidth={1.8} />
+            <Text style={[styles.secondaryButtonText, { color: semantic.destructive.fg }]}>Remove photo</Text>
           </Pressable>
         </View>
       ) : (
-        <Pressable style={styles.secondaryButton} onPress={() => setShowCamera(true)} testID="attach-receipt-button">
+        <Pressable
+          style={({ pressed }) => [styles.button, styles.buttonSecondary, pressed && styles.pressed]}
+          onPress={() => setShowCamera(true)}
+          testID="attach-receipt-button"
+        >
+          <HugeiconsIcon icon={Camera01Icon} size={16} color={accent.fg} strokeWidth={1.8} />
           <Text style={styles.secondaryButtonText}>Attach receipt photo</Text>
         </Pressable>
       )}
 
       {result ? <Text style={styles.result}>{result}</Text> : null}
 
-      <Pressable style={styles.submitButton} onPress={submit} disabled={submitting} testID="request-reimbursement-submit">
+      <Pressable
+        style={({ pressed }) => [styles.button, styles.submitButton, pressed && styles.pressed]}
+        onPress={submit}
+        disabled={submitting}
+        testID="request-reimbursement-submit"
+      >
         {submitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitButtonText}>Submit for approval</Text>}
       </Pressable>
     </ScrollView>
@@ -149,23 +183,74 @@ export default function RequestReimbursementScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24, gap: 10 },
-  info: { textAlign: "center", marginBottom: 16, color: "#444" },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24, gap: 12, backgroundColor: "#f2f3f5" },
+  permissionIconBadge: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: accent.bg,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 4,
+  },
+  info: { textAlign: "center", marginBottom: 8, color: "#444" },
   controls: { padding: 16, gap: 10 },
-  formContainer: { padding: 16, gap: 4 },
-  label: { fontSize: 12, color: "#666", textTransform: "uppercase", marginTop: 14, marginBottom: 6 },
-  input: { borderWidth: 1, borderColor: "#ddd", borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10 },
+  formContainer: { padding: 16, gap: 4, paddingBottom: 40 },
+  label: { fontSize: 12.5, color: accent.fg, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.3, marginTop: 16, marginBottom: 8 },
+  input: {
+    backgroundColor: "#fff",
+    borderWidth: 1.5,
+    borderColor: "rgba(31,35,40,0.1)",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    fontSize: 15,
+    color: "#1f2328",
+  },
   chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  chip: { backgroundColor: "#f1f3f5", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8 },
-  chipSelected: { backgroundColor: accent.solid },
-  chipText: { color: "#333", fontSize: 13 },
-  chipTextSelected: { color: "#fff", fontWeight: "600" },
-  preview: { height: 180, borderRadius: 8, marginBottom: 8, backgroundColor: "#000" },
-  button: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 12, alignItems: "center" },
-  buttonText: { color: "#fff", fontWeight: "600" },
-  secondaryButton: { backgroundColor: "#f1f3f5", borderRadius: 8, paddingVertical: 12, alignItems: "center" },
-  secondaryButtonText: { color: "#333", fontWeight: "600" },
+  chip: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderWidth: 1.5,
+    borderColor: "rgba(31,35,40,0.1)",
+  },
+  chipSelected: {
+    backgroundColor: accent.solid,
+    borderColor: accent.solid,
+    shadowColor: accent.solid,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  chipText: { color: "#333", fontSize: 13, fontWeight: "500" },
+  chipTextSelected: { color: "#fff", fontWeight: "700" },
+  preview: { height: 180, borderRadius: 12, marginBottom: 8, backgroundColor: "#000" },
+  pressed: { opacity: 0.85 },
+  button: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: 14, paddingVertical: 14, paddingHorizontal: 24 },
+  buttonPrimary: {
+    backgroundColor: accent.solid,
+    shadowColor: accent.solid,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  buttonText: { color: "#fff", fontWeight: "600", fontSize: 15 },
+  buttonSecondary: { backgroundColor: "#fff", borderWidth: 1.5, borderColor: "rgba(31,35,40,0.1)" },
+  secondaryButtonText: { color: "#333", fontWeight: "600", fontSize: 14 },
   result: { textAlign: "center", color: "#333", marginTop: 16 },
-  submitButton: { backgroundColor: semantic.success.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginTop: 20, marginBottom: 40 },
-  submitButtonText: { color: "#fff", fontWeight: "600" },
+  submitButton: {
+    backgroundColor: semantic.success.solid,
+    marginTop: 20,
+    marginBottom: 20,
+    shadowColor: semantic.success.solid,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  submitButtonText: { color: "#fff", fontWeight: "700", fontSize: 16 },
 });

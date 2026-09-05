@@ -8,6 +8,8 @@ import { getMyPayPeriods, getMyPayslip } from "../api/Payroll/PayrollAPI";
 import { moduleColor } from "../theme";
 import GradientHeader from "../components/GradientHeader";
 import Card from "../components/Card";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { Wallet01Icon, Calendar03Icon, ArrowRight02Icon } from "@hugeicons/core-free-icons";
 
 const accent = moduleColor.payroll;
 
@@ -91,10 +93,11 @@ export default function PayrollHomeScreen({ navigation }: Props) {
             </GradientHeader>
           ) : null}
           <Pressable
-            style={styles.reimbursementsButton}
+            style={({ pressed }) => [styles.reimbursementsButton, pressed && styles.pressed]}
             onPress={() => navigation.navigate("Reimbursements")}
             testID="reimbursements-button"
           >
+            <HugeiconsIcon icon={Wallet01Icon} size={18} color="#fff" strokeWidth={1.8} />
             <Text style={styles.reimbursementsButtonText}>My reimbursements</Text>
           </Pressable>
           <Text style={styles.sectionTitle}>Pay periods</Text>
@@ -105,11 +108,18 @@ export default function PayrollHomeScreen({ navigation }: Props) {
         <Pressable
           onPress={() => navigation.navigate("Payslip", { payPeriodId: item.payPeriodId, label: item.label })}
           testID={`pay-period-${item.payPeriodId}`}
+          style={({ pressed }) => pressed && styles.pressed}
         >
           <Card style={styles.card}>
-            <Text style={styles.cardTitle}>{item.label}</Text>
-            <Text style={styles.cardMeta}>{item.startDate} → {item.endDate}</Text>
-            <Text style={styles.cardMeta}>Pay date: {item.payDate}</Text>
+            <View style={styles.cardIconBadge}>
+              <HugeiconsIcon icon={Calendar03Icon} size={18} color={accent.fg} strokeWidth={1.8} />
+            </View>
+            <View style={styles.cardBody}>
+              <Text style={styles.cardTitle}>{item.label}</Text>
+              <Text style={styles.cardMeta}>{item.startDate} → {item.endDate}</Text>
+              <Text style={styles.cardMeta}>Pay date: {item.payDate}</Text>
+            </View>
+            <HugeiconsIcon icon={ArrowRight02Icon} size={18} color="#9aa3ad" strokeWidth={1.8} />
           </Card>
         </Pressable>
       )}
@@ -119,17 +129,42 @@ export default function PayrollHomeScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   container: { paddingBottom: 28, gap: 10 },
-  hero: { marginBottom: 16 },
+  hero: { marginBottom: 16, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
   heroLabel: { color: "rgba(255,255,255,0.85)", fontSize: 13 },
   heroAmount: { color: "#fff", fontSize: 32, fontWeight: "700", marginTop: 4 },
   heroRow: { flexDirection: "row", gap: 32, marginTop: 16 },
   heroSubLabel: { color: "rgba(255,255,255,0.85)", fontSize: 12 },
   heroSubValue: { color: "#fff", fontSize: 16, fontWeight: "600", marginTop: 2 },
-  reimbursementsButton: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginBottom: 16, marginHorizontal: 16 },
-  reimbursementsButtonText: { color: "#fff", fontWeight: "600" },
-  sectionTitle: { fontSize: 13, color: "#666", textTransform: "uppercase", marginBottom: 12, marginHorizontal: 16 },
+  pressed: { opacity: 0.85 },
+  reimbursementsButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: accent.solid,
+    borderRadius: 14,
+    paddingVertical: 15,
+    marginBottom: 16,
+    marginHorizontal: 16,
+    shadowColor: accent.solid,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  reimbursementsButtonText: { color: "#fff", fontWeight: "700", fontSize: 15 },
+  sectionTitle: { fontSize: 13, color: accent.fg, fontWeight: "700", textTransform: "uppercase", marginBottom: 12, marginHorizontal: 16 },
   empty: { textAlign: "center", color: "#666", marginTop: 24 },
-  card: { padding: 14, marginBottom: 10, marginHorizontal: 16 },
+  card: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, marginBottom: 10, marginHorizontal: 16 },
+  cardIconBadge: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: accent.bg,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cardBody: { flex: 1 },
   cardTitle: { fontSize: 15, fontWeight: "600", color: accent.fg },
   cardMeta: { fontSize: 13, color: "#666", marginTop: 2 },
 });

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { SectionList, Text, Pressable, View, StyleSheet } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { HugeiconsIcon } from "@hugeicons/react-native";
-import { ArrowRight02Icon } from "@hugeicons/core-free-icons";
+import { ArrowRight02Icon, Logout01Icon } from "@hugeicons/core-free-icons";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../store";
 import { setLoggedOut } from "../store/authSlice";
@@ -57,7 +57,7 @@ export default function ProfileListScreen({ navigation }: Props) {
         contentContainerStyle={{ paddingBottom: 32 }}
         ListHeaderComponent={
           <>
-            <GradientHeader>
+            <GradientHeader style={styles.hero}>
               <View style={styles.heroRow}>
                 <View style={styles.avatar}>
                   <Text style={styles.avatarText}>{initialsOf(fullName) || "?"}</Text>
@@ -79,16 +79,32 @@ export default function ProfileListScreen({ navigation }: Props) {
           </>
         }
         renderSectionHeader={({ section }) => <Text style={styles.header}>{section.title}</Text>}
-        renderItem={({ item }) => (
-          <Pressable
-            style={styles.row}
-            onPress={() => navigation.navigate("ProfileSection", { sectionId: item.id, label: item.label })}
-          >
-            <Text style={styles.rowText}>{item.label}</Text>
-          </Pressable>
-        )}
+        renderItem={({ item, index, section }) => {
+          const isFirst = index === 0;
+          const isLast = index === section.data.length - 1;
+          return (
+            <Pressable
+              style={({ pressed }) => [
+                styles.row,
+                isFirst && styles.rowFirst,
+                isLast && styles.rowLast,
+                !isLast && styles.rowDivider,
+                pressed && styles.rowPressed,
+              ]}
+              onPress={() => navigation.navigate("ProfileSection", { sectionId: item.id, label: item.label })}
+            >
+              <Text style={styles.rowText}>{item.label}</Text>
+              <HugeiconsIcon icon={ArrowRight02Icon} size={16} color="#9aa3ad" strokeWidth={1.8} />
+            </Pressable>
+          );
+        }}
         ListFooterComponent={
-          <Pressable style={styles.logout} onPress={handleLogout} testID="logout-button">
+          <Pressable
+            style={({ pressed }) => [styles.logout, pressed && styles.logoutPressed]}
+            onPress={handleLogout}
+            testID="logout-button"
+          >
+            <HugeiconsIcon icon={Logout01Icon} size={17} color={semantic.destructive.fg} strokeWidth={1.8} />
             <Text style={styles.logoutText}>Log out</Text>
           </Pressable>
         }
@@ -98,6 +114,7 @@ export default function ProfileListScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
+  hero: { borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
   heroRow: { flexDirection: "row", alignItems: "center", gap: 14 },
   avatar: {
     width: 56, height: 56, borderRadius: 28,
@@ -108,12 +125,55 @@ const styles = StyleSheet.create({
   avatarText: { color: "#fff", fontWeight: "700", fontSize: 20 },
   heroName: { color: "#fff", fontWeight: "700", fontSize: 18 },
   heroMeta: { color: "rgba(255,255,255,0.85)", fontSize: 13, marginTop: 2 },
-  hierarchyLink: { margin: 16, padding: 14, borderRadius: 10 },
+  hierarchyLink: {
+    margin: 16,
+    padding: 15,
+    borderRadius: 14,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
   hierarchyLinkRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6 },
-  hierarchyLinkText: { color: moduleColor.profile.fg, fontWeight: "600" },
-  header: { backgroundColor: moduleColor.profile.bg, paddingHorizontal: 16, paddingVertical: 6, fontSize: 12, fontWeight: "700", color: moduleColor.profile.fg },
-  row: { paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: "#eee" },
-  rowText: { fontSize: 15, color: "#111" },
-  logout: { margin: 16, padding: 14, backgroundColor: semantic.destructive.bg, borderRadius: 8, alignItems: "center" },
-  logoutText: { color: semantic.destructive.fg, fontWeight: "600" },
+  hierarchyLinkText: { color: moduleColor.profile.fg, fontWeight: "700" },
+  header: {
+    fontSize: 12.5,
+    fontWeight: "700",
+    color: moduleColor.profile.fg,
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
+    marginHorizontal: 16,
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingVertical: 15,
+    marginHorizontal: 16,
+  },
+  rowFirst: { borderTopLeftRadius: 14, borderTopRightRadius: 14 },
+  rowLast: { borderBottomLeftRadius: 14, borderBottomRightRadius: 14 },
+  rowDivider: { borderBottomWidth: 1, borderBottomColor: "rgba(31,35,40,0.08)" },
+  rowPressed: { backgroundColor: "#f5f6f7" },
+  rowText: { fontSize: 15, color: "#1f2328", fontWeight: "500" },
+  logout: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    margin: 16,
+    marginTop: 24,
+    padding: 15,
+    backgroundColor: semantic.destructive.fg + "1f",
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: semantic.destructive.fg + "33",
+  },
+  logoutPressed: { opacity: 0.8 },
+  logoutText: { color: semantic.destructive.fg, fontWeight: "700", fontSize: 15 },
 });

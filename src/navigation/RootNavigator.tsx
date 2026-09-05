@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { View, StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator, type NativeStackNavigationOptions } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -83,11 +84,30 @@ function ProfileTabStack() {
   );
 }
 
-/** HugeIcons tab glyphs, replacing the old plain-text symbol substitutes. Active tab gets the
- * brand color, inactive stays muted grey. */
+/** HugeIcons tab glyphs. Active tab gets a small tinted circle behind the icon plus the brand
+ * color; inactive stays plain and muted. The circle is sized to fit inside the default tab bar
+ * height so it doesn't push the label off — a taller custom bar clipped the label before. */
 function TabIcon({ icon, focused }: { icon: IconSvgElement; focused: boolean }) {
-  return <HugeiconsIcon icon={icon} size={20} color={focused ? brand.solid : neutral.textMuted} strokeWidth={1.8} />;
+  return (
+    <View style={[tabBarStyles.iconCircle, focused && tabBarStyles.iconCircleFocused]}>
+      <HugeiconsIcon icon={icon} size={19} color={focused ? brand.solid : neutral.textMuted} strokeWidth={1.8} />
+    </View>
+  );
 }
+
+const tabBarStyles = StyleSheet.create({
+  bar: {
+    backgroundColor: neutral.card,
+    borderTopColor: neutral.border,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  iconCircle: { width: 30, height: 24, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  iconCircleFocused: { backgroundColor: "#dcefe8" },
+});
 
 function MainTabs() {
   return (
@@ -96,7 +116,7 @@ function MainTabs() {
         headerShown: false,
         tabBarActiveTintColor: brand.solid,
         tabBarInactiveTintColor: neutral.textMuted,
-        tabBarStyle: { backgroundColor: neutral.card, borderTopColor: neutral.border },
+        tabBarStyle: tabBarStyles.bar,
       }}
     >
       <Tab.Screen

@@ -5,6 +5,13 @@ import type { TeamMemberReturn } from "../type/orgHierarchy";
 import { getMyTeam, getMyManagers } from "../api/OrgHierarchy/OrgHierarchyAPI";
 import { moduleColor } from "../theme";
 import Card from "../components/Card";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { UserMultipleIcon } from "@hugeicons/core-free-icons";
+
+function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase();
+}
 
 const accent = moduleColor.hierarchy;
 
@@ -46,13 +53,25 @@ export default function CompanyHierarchyScreen() {
       keyExtractor={(item, index) => `${item.employeeId}-${index}`}
       renderSectionHeader={({ section }) => <Text style={styles.sectionTitle}>{section.title}</Text>}
       renderSectionFooter={({ section }) =>
-        section.data.length === 0 ? <Text style={styles.empty}>None found.</Text> : null
+        section.data.length === 0 ? (
+          <View style={styles.empty}>
+            <View style={styles.emptyIconBadge}>
+              <HugeiconsIcon icon={UserMultipleIcon} size={22} color={accent.fg} strokeWidth={1.6} />
+            </View>
+            <Text style={styles.emptyText}>None found.</Text>
+          </View>
+        ) : null
       }
       renderItem={({ item }) => (
         <Card style={styles.card}>
-          <Text style={styles.name}>{item.employeeName}</Text>
-          <Text style={styles.meta}>{item.roleName}{item.unitEntityName ? ` · ${item.unitEntityName}` : ""}</Text>
-          <Text style={styles.number}>{item.employeeNumber}</Text>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{initialsOf(item.employeeName) || "?"}</Text>
+          </View>
+          <View style={styles.cardBody}>
+            <Text style={styles.name}>{item.employeeName}</Text>
+            <Text style={styles.meta}>{item.roleName}{item.unitEntityName ? ` · ${item.unitEntityName}` : ""}</Text>
+            <Text style={styles.number}>{item.employeeNumber}</Text>
+          </View>
         </Card>
       )}
     />
@@ -61,9 +80,46 @@ export default function CompanyHierarchyScreen() {
 
 const styles = StyleSheet.create({
   container: { padding: 16, paddingBottom: 32 },
-  sectionTitle: { fontSize: 13, color: accent.fg, textTransform: "uppercase", marginTop: 16, marginBottom: 12, backgroundColor: "#fff", fontWeight: "700" },
-  empty: { color: "#999", fontSize: 13, fontStyle: "italic", marginBottom: 8 },
-  card: { padding: 14, marginBottom: 10 },
+  sectionTitle: {
+    fontSize: 12.5,
+    color: accent.fg,
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
+    marginTop: 20,
+    marginBottom: 10,
+    fontWeight: "700",
+  },
+  empty: {
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: "rgba(31,35,40,0.08)",
+    borderStyle: "dashed",
+    paddingVertical: 24,
+    marginBottom: 8,
+  },
+  emptyIconBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: accent.bg,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  emptyText: { color: "#8a8f98", fontSize: 13.5, fontWeight: "500" },
+  card: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, marginBottom: 10 },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: accent.bg,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: { color: accent.fg, fontWeight: "700", fontSize: 15 },
+  cardBody: { flex: 1 },
   name: { fontSize: 15, fontWeight: "600", color: "#111" },
   meta: { fontSize: 13, color: "#555", marginTop: 2 },
   number: { fontSize: 12, color: "#999", marginTop: 4 },

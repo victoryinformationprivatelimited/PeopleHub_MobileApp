@@ -2,8 +2,17 @@ import { useEffect, useState } from "react";
 import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
 import { SkeletonScreen } from "../components/Skeleton";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import { CheckmarkCircle02Icon, DollarCircleIcon, Calendar03Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react-native";
+import {
+  CheckmarkCircle02Icon,
+  DollarCircleIcon,
+  Calendar03Icon,
+  CalendarAdd02Icon,
+  ClipboardCheckIcon,
+  ReceiptDollarIcon,
+  Wallet01Icon,
+  Structure02Icon,
+} from "@hugeicons/core-free-icons";
 import type { RootStackParamList } from "../navigation/types";
 import { neutral, brand, chart } from "../theme";
 import GradientHeader from "../components/GradientHeader";
@@ -164,32 +173,76 @@ export default function HomeScreen({ navigation }: Props) {
       <Card style={styles.card}>
         <Text style={styles.cardTitle}>Quick Actions</Text>
         <View style={styles.actionsGrid}>
-          <ActionButton label="Mark Attendance" onPress={() => navigation.navigate("MarkAttendance")} testID="qa-mark-attendance" />
           <ActionButton
+            icon={CheckmarkCircle02Icon}
+            label="Mark Attendance"
+            onPress={() => navigation.navigate("MarkAttendance")}
+            testID="qa-mark-attendance"
+          />
+          <ActionButton
+            icon={Calendar03Icon}
             label="Leave"
             onPress={() => (navigation.getParent() as any)?.navigate("AttendanceTab", { screen: "LeaveHome" })}
             testID="qa-leave"
           />
-          <ActionButton label="Apply for Leave" onPress={() => navigation.navigate("ApplyLeave")} testID="qa-apply-leave" />
-          <ActionButton label="Pending Approvals" onPress={() => navigation.navigate("PendingApprovals")} testID="qa-approvals" />
+          <ActionButton
+            icon={CalendarAdd02Icon}
+            label="Apply for Leave"
+            onPress={() => navigation.navigate("ApplyLeave")}
+            testID="qa-apply-leave"
+          />
+          <ActionButton
+            icon={ClipboardCheckIcon}
+            label="Pending Approvals"
+            onPress={() => navigation.navigate("PendingApprovals")}
+            testID="qa-approvals"
+          />
           {data.netPay ? (
             <ActionButton
+              icon={ReceiptDollarIcon}
               label="View Payslip"
               onPress={() => navigation.navigate("Payslip", { payPeriodId: data.netPay!.payPeriodId, label: data.netPay!.label })}
               testID="qa-payslip"
             />
           ) : null}
-          <ActionButton label="Request Reimbursement" onPress={() => navigation.navigate("RequestReimbursement")} testID="qa-reimbursement" />
-          <ActionButton label="Company Hierarchy" onPress={() => navigation.navigate("CompanyHierarchy")} testID="qa-hierarchy" />
+          <ActionButton
+            icon={Wallet01Icon}
+            label="Request Reimbursement"
+            onPress={() => navigation.navigate("RequestReimbursement")}
+            testID="qa-reimbursement"
+          />
+          <ActionButton
+            icon={Structure02Icon}
+            label="Company Hierarchy"
+            onPress={() => navigation.navigate("CompanyHierarchy")}
+            testID="qa-hierarchy"
+          />
         </View>
       </Card>
     </ScrollView>
   );
 }
 
-function ActionButton({ label, onPress, testID }: { label: string; onPress: () => void; testID: string }) {
+function ActionButton({
+  icon,
+  label,
+  onPress,
+  testID,
+}: {
+  icon: IconSvgElement;
+  label: string;
+  onPress: () => void;
+  testID: string;
+}) {
   return (
-    <Pressable style={styles.actionButton} onPress={onPress} testID={testID}>
+    <Pressable
+      style={({ pressed }) => [styles.actionButton, pressed && styles.actionButtonPressed]}
+      onPress={onPress}
+      testID={testID}
+    >
+      <View style={styles.actionIconBadge}>
+        <HugeiconsIcon icon={icon} size={19} color={brand.dark1} strokeWidth={1.8} />
+      </View>
       <Text style={styles.actionButtonText}>{label}</Text>
     </Pressable>
   );
@@ -207,11 +260,36 @@ const styles = StyleSheet.create({
   avatarText: { color: "#fff", fontWeight: "700", fontSize: 20 },
   heroName: { color: "#fff", fontWeight: "700", fontSize: 18 },
   heroMeta: { color: "rgba(255,255,255,0.85)", fontSize: 13, marginTop: 2 },
-  hero: { paddingBottom: 36 },
+  hero: { paddingBottom: 36, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
   statsRow: { flexDirection: "row", gap: 10, paddingHorizontal: 16, marginTop: -16 },
   card: { padding: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
   cardTitle: { fontSize: 15, fontWeight: "700", color: neutral.text, marginBottom: 16 },
   actionsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  actionButton: { backgroundColor: "#e6f2ee", borderRadius: 10, paddingVertical: 12, paddingHorizontal: 14, minWidth: "45%", flexGrow: 1, alignItems: "center" },
+  actionButton: {
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: "rgba(31,35,40,0.08)",
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    minWidth: "45%",
+    flexGrow: 1,
+    alignItems: "center",
+    gap: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  actionButtonPressed: { opacity: 0.75, backgroundColor: "#f5f6f7" },
+  actionIconBadge: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: "#e6f2ee",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   actionButtonText: { color: brand.dark1, fontWeight: "600", fontSize: 13, textAlign: "center" },
 });

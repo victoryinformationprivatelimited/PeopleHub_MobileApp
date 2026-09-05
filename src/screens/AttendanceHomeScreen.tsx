@@ -8,6 +8,8 @@ import { getMyRoster, getMyAttendanceSummary } from "../api/Attendance/Attendanc
 import { moduleColor, chart } from "../theme";
 import PieChart from "../components/PieChart";
 import Card from "../components/Card";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react-native";
+import { CheckmarkCircle02Icon, Calendar03Icon, ClipboardCheckIcon } from "@hugeicons/core-free-icons";
 
 const accent = moduleColor.attendance;
 
@@ -69,15 +71,25 @@ export default function AttendanceHomeScreen({ navigation }: Props) {
         </View>
       </Card>
 
-      <Pressable style={styles.button} onPress={() => navigation.navigate("MarkAttendance")} testID="mark-attendance-button">
-        <Text style={styles.buttonText}>Mark attendance</Text>
-      </Pressable>
-      <Pressable style={styles.button} onPress={() => navigation.navigate("LeaveHome")} testID="leave-home-button">
-        <Text style={styles.buttonText}>Leave</Text>
-      </Pressable>
-      <Pressable style={styles.secondaryButton} onPress={() => navigation.navigate("PendingApprovals")} testID="approvals-button">
-        <Text style={styles.secondaryButtonText}>Pending approvals (manager)</Text>
-      </Pressable>
+      <ActionRow
+        icon={CheckmarkCircle02Icon}
+        label="Mark attendance"
+        onPress={() => navigation.navigate("MarkAttendance")}
+        testID="mark-attendance-button"
+      />
+      <ActionRow
+        icon={Calendar03Icon}
+        label="Leave"
+        onPress={() => navigation.navigate("LeaveHome")}
+        testID="leave-home-button"
+      />
+      <ActionRow
+        icon={ClipboardCheckIcon}
+        label="Pending approvals (manager)"
+        onPress={() => navigation.navigate("PendingApprovals")}
+        testID="approvals-button"
+        variant="secondary"
+      />
     </ScrollView>
   );
 }
@@ -91,8 +103,42 @@ function SummaryStat({ label, value }: { label: string; value: number | undefine
   );
 }
 
+function ActionRow({
+  icon,
+  label,
+  onPress,
+  testID,
+  variant = "primary",
+}: {
+  icon: IconSvgElement;
+  label: string;
+  onPress: () => void;
+  testID: string;
+  variant?: "primary" | "secondary";
+}) {
+  const isPrimary = variant === "primary";
+  return (
+    <Pressable
+      style={({ pressed }) => [
+        styles.button,
+        isPrimary ? styles.buttonPrimary : styles.buttonSecondary,
+        pressed && styles.buttonPressed,
+      ]}
+      onPress={onPress}
+      testID={testID}
+    >
+      <View style={[styles.buttonIconBadge, isPrimary ? styles.buttonIconBadgeOnPrimary : styles.buttonIconBadgeOnSecondary]}>
+        <HugeiconsIcon icon={icon} size={17} color={isPrimary ? "#fff" : accent.fg} strokeWidth={1.8} />
+      </View>
+      <Text style={[styles.buttonText, isPrimary ? styles.buttonTextOnPrimary : styles.buttonTextOnSecondary]}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: { padding: 16, paddingBottom: 28, gap: 16 },
+  container: { padding: 16, paddingBottom: 28, gap: 14 },
   card: { padding: 16 },
   cardTitle: { fontSize: 13, color: accent.fg, marginBottom: 12, textTransform: "uppercase", fontWeight: "700" },
   line: { fontSize: 16, fontWeight: "600", color: "#111" },
@@ -101,8 +147,28 @@ const styles = StyleSheet.create({
   stat: { alignItems: "center" },
   statValue: { fontSize: 22, fontWeight: "700", color: accent.fg },
   statLabel: { fontSize: 12, color: "#666" },
-  button: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center" },
-  buttonText: { color: "#fff", fontWeight: "600" },
-  secondaryButton: { backgroundColor: "#f1f3f5", borderRadius: 8, paddingVertical: 14, alignItems: "center" },
-  secondaryButtonText: { color: "#333", fontWeight: "600" },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    borderRadius: 14,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+  },
+  buttonPrimary: {
+    backgroundColor: accent.solid,
+    shadowColor: accent.solid,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  buttonSecondary: { backgroundColor: accent.bg, borderWidth: 1, borderColor: "rgba(31,35,40,0.08)" },
+  buttonPressed: { opacity: 0.85 },
+  buttonIconBadge: { width: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center" },
+  buttonIconBadgeOnPrimary: { backgroundColor: "rgba(255,255,255,0.22)" },
+  buttonIconBadgeOnSecondary: { backgroundColor: "#ffffff" },
+  buttonText: { fontWeight: "600", fontSize: 15 },
+  buttonTextOnPrimary: { color: "#fff" },
+  buttonTextOnSecondary: { color: accent.fg },
 });

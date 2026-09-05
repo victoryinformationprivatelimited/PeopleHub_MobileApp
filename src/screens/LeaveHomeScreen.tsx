@@ -5,9 +5,11 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { LeaveEntitlementReturn } from "../type/leave";
 import { getMyLeaveEntitlements } from "../api/Leave/LeaveAPI";
-import { moduleColor } from "../theme";
+import { moduleColor, brand } from "../theme";
 import GradientHeader from "../components/GradientHeader";
 import Card from "../components/Card";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react-native";
+import { PlusSignCircleIcon, Clock01Icon, CheckmarkCircle02Icon, CancelCircleIcon } from "@hugeicons/core-free-icons";
 
 const accent = moduleColor.leave;
 
@@ -49,13 +51,18 @@ export default function LeaveHomeScreen({ navigation }: Props) {
             <Text style={styles.heroLabel}>Leave Balance</Text>
             <Text style={styles.heroAmount}>{totalBalance} day{totalBalance === 1 ? "" : "s"}</Text>
           </GradientHeader>
-          <Pressable style={styles.applyButton} onPress={() => navigation.navigate("ApplyLeave")} testID="apply-leave-button">
+          <Pressable
+            style={({ pressed }) => [styles.applyButton, pressed && styles.pressed]}
+            onPress={() => navigation.navigate("ApplyLeave")}
+            testID="apply-leave-button"
+          >
+            <HugeiconsIcon icon={PlusSignCircleIcon} size={18} color="#fff" strokeWidth={1.8} />
             <Text style={styles.applyButtonText}>Apply for leave</Text>
           </Pressable>
           <View style={styles.tabsRow}>
-            <TabButton label="Pending" onPress={() => navigation.navigate("LeaveRequests", { status: "Pending" })} />
-            <TabButton label="Approved" onPress={() => navigation.navigate("LeaveRequests", { status: "Approved" })} />
-            <TabButton label="Rejected" onPress={() => navigation.navigate("LeaveRequests", { status: "Rejected" })} />
+            <TabButton icon={Clock01Icon} label="Pending" onPress={() => navigation.navigate("LeaveRequests", { status: "Pending" })} />
+            <TabButton icon={CheckmarkCircle02Icon} label="Approved" onPress={() => navigation.navigate("LeaveRequests", { status: "Approved" })} />
+            <TabButton icon={CancelCircleIcon} label="Rejected" onPress={() => navigation.navigate("LeaveRequests", { status: "Rejected" })} />
           </View>
           <Text style={styles.sectionTitle}>Entitlements ({new Date().getFullYear()})</Text>
         </>
@@ -76,9 +83,14 @@ export default function LeaveHomeScreen({ navigation }: Props) {
   );
 }
 
-function TabButton({ label, onPress }: { label: string; onPress: () => void }) {
+function TabButton({ icon, label, onPress }: { icon: IconSvgElement; label: string; onPress: () => void }) {
   return (
-    <Pressable style={styles.tab} onPress={onPress} testID={`leave-tab-${label.toLowerCase()}`}>
+    <Pressable
+      style={({ pressed }) => [styles.tab, pressed && styles.pressed]}
+      onPress={onPress}
+      testID={`leave-tab-${label.toLowerCase()}`}
+    >
+      <HugeiconsIcon icon={icon} size={16} color={accent.fg} strokeWidth={1.8} />
       <Text style={styles.tabText}>{label}</Text>
     </Pressable>
   );
@@ -95,15 +107,47 @@ function Stat({ label, value }: { label: string; value: number }) {
 
 const styles = StyleSheet.create({
   container: { paddingBottom: 28, gap: 12 },
-  hero: { marginBottom: 16 },
+  hero: { marginBottom: 16, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
   heroLabel: { color: "rgba(255,255,255,0.85)", fontSize: 13 },
   heroAmount: { color: "#fff", fontSize: 28, fontWeight: "700", marginTop: 4 },
-  applyButton: { backgroundColor: accent.solid, borderRadius: 8, paddingVertical: 14, alignItems: "center", marginBottom: 12, marginHorizontal: 16 },
-  applyButtonText: { color: "#fff", fontWeight: "600" },
-  tabsRow: { flexDirection: "row", gap: 8, marginBottom: 16, marginHorizontal: 16 },
-  tab: { flex: 1, backgroundColor: accent.bg, borderRadius: 8, paddingVertical: 10, alignItems: "center" },
+  pressed: { opacity: 0.85 },
+  applyButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: accent.solid,
+    borderRadius: 14,
+    paddingVertical: 15,
+    marginBottom: 12,
+    marginHorizontal: 16,
+    shadowColor: accent.solid,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  applyButtonText: { color: "#fff", fontWeight: "700", fontSize: 15 },
+  tabsRow: { flexDirection: "row", gap: 8, marginBottom: 20, marginHorizontal: 16 },
+  tab: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    paddingVertical: 11,
+    borderWidth: 1.5,
+    borderColor: brand.dark1 + "40",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 1,
+  },
   tabText: { color: accent.fg, fontWeight: "600", fontSize: 13 },
-  sectionTitle: { fontSize: 13, color: "#666", textTransform: "uppercase", marginBottom: 12, marginHorizontal: 16 },
+  sectionTitle: { fontSize: 13, color: accent.fg, fontWeight: "700", textTransform: "uppercase", marginBottom: 12, marginHorizontal: 16 },
   empty: { textAlign: "center", color: "#666", marginTop: 24 },
   card: { padding: 14, marginBottom: 10, marginHorizontal: 16 },
   cardTitle: { fontSize: 15, fontWeight: "600", color: accent.fg, marginBottom: 8 },
