@@ -21,6 +21,16 @@ export const fetchSection = createAsyncThunk(
     if (!result.success) return rejectWithValue({ sectionId, message: result.message });
     return { sectionId, data: result.data };
   },
+  {
+    // Cache-first: skip refetching a section that already loaded successfully, so navigating
+    // away and back (e.g. list -> Basic Information -> back -> Basic Information) reuses the
+    // data already in the store instead of hitting the API again.
+    condition: (sectionId, { getState }) => {
+      const { sections } = (getState() as { profile: ProfileState }).profile;
+      const existing = sections[sectionId];
+      return !(existing && !existing.loading && !existing.error && existing.data != null);
+    },
+  },
 );
 
 const profileSlice = createSlice({

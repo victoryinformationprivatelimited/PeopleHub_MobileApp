@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { SectionList, Text, Pressable, View, StyleSheet } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { ArrowRight02Icon, Logout01Icon } from "@hugeicons/core-free-icons";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "../store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../store";
 import { setLoggedOut } from "../store/authSlice";
 import { logout } from "../api/Auth/AuthAPI";
-import { getSection } from "../api/Profile/ProfileAPI";
+import { fetchSection } from "../store/profileSlice";
 import { SECTION_GROUPS } from "../type/sectionMeta";
 import type { RootStackParamList } from "../navigation/types";
 import { moduleColor, semantic } from "../theme";
@@ -27,20 +27,17 @@ function initialsOf(name: string): string {
 
 export default function ProfileListScreen({ navigation }: Props) {
   const dispatch = useDispatch<AppDispatch>();
-  const [fullName, setFullName] = useState("");
-  const [employeeNumber, setEmployeeNumber] = useState("");
+  const basic = useSelector((state: RootState) => state.profile.sections.basic);
 
   useEffect(() => {
-    getSection("basic").then((result) => {
-      if (result.success && result.data?.type === "fields") {
-        const fields = result.data.fields;
-        const first = fieldValue(fields, "First Name") ?? "";
-        const last = fieldValue(fields, "Last Name") ?? "";
-        setFullName([first, last].filter(Boolean).join(" "));
-        setEmployeeNumber(fieldValue(fields, "Employee Number") ?? "");
-      }
-    });
+    dispatch(fetchSection("basic"));
   }, []);
+
+  const basicFields = basic?.data?.type === "fields" ? basic.data.fields : [];
+  const fullName = [fieldValue(basicFields, "First Name"), fieldValue(basicFields, "Last Name")]
+    .filter(Boolean)
+    .join(" ");
+  const employeeNumber = fieldValue(basicFields, "Employee Number") ?? "";
 
   const sections = SECTION_GROUPS.map((g) => ({ title: g.title, data: g.items }));
 

@@ -1,11 +1,12 @@
 import { useEffect } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { AppDispatch, RootState } from "../store";
 import { fetchSection } from "../store/profileSlice";
 import { SectionRenderer } from "./SectionRenderer";
 import type { RootStackParamList } from "../navigation/types";
+import { neutral } from "../theme";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ProfileSection">;
 
@@ -20,7 +21,7 @@ export default function ProfileSectionScreen({ route, navigation }: Props) {
   }, [sectionId]);
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 32 }}>
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <SectionRenderer
         loading={section?.loading ?? true}
         error={section?.error ?? null}
@@ -29,3 +30,8 @@ export default function ProfileSectionScreen({ route, navigation }: Props) {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: { backgroundColor: neutral.background },
+  content: { padding: 16, paddingBottom: 32 },
+});

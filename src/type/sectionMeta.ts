@@ -5,10 +5,12 @@ import type { SectionMeta, SectionId } from "./profile";
 export const SECTION_GROUPS: { title: string; items: { id: SectionId; label: string; route: string }[] }[] = [
   { title: "Personal", items: [
     { id: "basic", label: "Basic information", route: "GetMyBasicInfo" },
+    { id: "carddetails", label: "Card details", route: "GetMyCardDetails" },
     { id: "contact", label: "Contact information", route: "GetMyContactInfo" },
   ]},
   { title: "Employment", items: [
     { id: "employment", label: "Employment details", route: "GetMyEmploymentDetails" },
+    { id: "attendance", label: "Attendance details", route: "GetMyAttendanceDetails" },
     { id: "compensation", label: "Compensation", route: "GetMyCompensationDetails" },
     { id: "workhistory", label: "Work history", route: "GetMyWorkHistory" },
   ]},

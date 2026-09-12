@@ -1,7 +1,7 @@
 /** Ported (read-only subset) from PeopleHub-ESS/src/type/profile.ts — mobile M1 is read-only
  * per ESS-Mobile-App-Plan.md §6, so the edit-mode/draft types aren't ported yet. */
 export type SectionId =
-  | "basic" | "contact" | "employment" | "compensation" | "workhistory"
+  | "basic" | "carddetails" | "contact" | "employment" | "attendance" | "compensation" | "workhistory"
   | "qualifications" | "certifications" | "languages" | "skills" | "visa"
   | "bgcheck" | "agreements" | "disciplinary" | "policy" | "privacy"
   | "engagements" | "hobbies" | "groups" | "recognition" | "documents"

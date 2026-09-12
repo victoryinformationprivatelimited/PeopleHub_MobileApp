@@ -67,6 +67,39 @@ function formatAddress(a: any): string | null {
   return [a.address, a.city, a.district, a.province, a.country, a.postalCode].filter(Boolean).join(", ") || null;
 }
 
+const TAX_RESIDENCY_BADGE: Record<string, BadgeStatus> = {
+  resident: "approved", "non-resident": "pending", "dual resident": "info",
+};
+
+function mapCardDetails(dto: any): SectionPayload {
+  return fields([
+    { label: "Bank Name", value: dto.bankName ?? null },
+    { label: "Branch Name", value: dto.branchName ?? null },
+    { label: "Branch Code", value: dto.branchCode ?? null },
+    { label: "Account Name", value: dto.accountName ?? null },
+    { label: "Account Number", value: dto.accountNumber ?? null },
+    { label: "IBAN", value: dto.iban ?? null },
+    { label: "SWIFT / BIC Code", value: dto.swiftCode ?? null },
+    { label: "Payment Method", value: dto.paymentMethod ?? null },
+    {
+      label: "Verification Status",
+      value: dto.isVerified ? "Verified" : "Not Verified",
+      badge: dto.isVerified ? { status: "approved", text: "Verified" } : undefined,
+    },
+    { label: "Tax Country", value: dto.taxCountry ?? null },
+    { label: "Tax Identification Number (TIN)", value: dto.taxIdentificationNumber ?? null },
+    { label: "Provident Fund Number", value: dto.providentFundNumber ?? null },
+    {
+      label: "Tax Residency Status",
+      value: dto.taxResidencyStatus ?? null,
+      badge: dto.taxResidencyStatus
+        ? { status: TAX_RESIDENCY_BADGE[dto.taxResidencyStatus.toLowerCase()] ?? "info", text: dto.taxResidencyStatus }
+        : undefined,
+    },
+    { label: "Tax Remarks", value: dto.taxRemarks ?? null },
+  ]);
+}
+
 function mapContactInfo(dto: any): SectionPayload {
   const f: FieldItem[] = [
     { label: "Current Address", value: formatAddress(dto.currentAddress) },
@@ -86,17 +119,43 @@ function mapContactInfo(dto: any): SectionPayload {
 
 // ---- Employment ----
 
-function mapEmploymentDetails(dto: any): SectionPayload {
+export interface EmploymentLookups {
+  entities: { entityId: number; entityName: string; location?: string | null }[];
+  roles: { employeeRoleId: number; employeeRoleName: string }[];
+  categories: { employeeCategoryId: number; employeeCategoryName: string }[];
+  types: { employeeTypeId: number; employeeTypeName: string }[];
+  grades: { gradeId: number; gradeName: string }[];
+}
+
+/**
+ * lookups comes from GetMyEmploymentLookups (ported from ESS's ProfileAPI.getEmploymentLookups)
+ * since GetMyEmploymentDetails returns raw role/category/type/entity/grade IDs, not names.
+ * Falls back to the raw ID if lookups weren't available so the section never goes blank.
+ */
+function mapEmploymentDetails(dto: any, lookups?: EmploymentLookups | null): SectionPayload {
+  const roleName = lookups?.roles.find((r) => r.employeeRoleId === dto.employeeRole)?.employeeRoleName;
+  const categoryName = lookups?.categories.find((c) => c.employeeCategoryId === dto.employeeCategory)?.employeeCategoryName;
+  const typeName = lookups?.types.find((t) => t.employeeTypeId === dto.employeeType)?.employeeTypeName;
+  const entityName = lookups?.entities.find((e) => e.entityId === dto.entity)?.entityName;
+  const gradeName = lookups?.grades.find((g) => g.gradeId === dto.employmentGrade)?.gradeName;
+
   return fields([
-    { label: "Role ID", value: dto.employeeRole != null ? String(dto.employeeRole) : null },
-    { label: "Category ID", value: dto.employeeCategory != null ? String(dto.employeeCategory) : null },
-    { label: "Type ID", value: dto.employeeType != null ? String(dto.employeeType) : null },
-    { label: "Entity ID", value: dto.entity != null ? String(dto.entity) : null },
+    { label: "Role", value: roleName ?? (dto.employeeRole != null ? String(dto.employeeRole) : null) },
+    { label: "Category", value: categoryName ?? (dto.employeeCategory != null ? String(dto.employeeCategory) : null) },
+    { label: "Type", value: typeName ?? (dto.employeeType != null ? String(dto.employeeType) : null) },
+    { label: "Entity", value: entityName ?? (dto.entity != null ? String(dto.entity) : null) },
     { label: "Hire Date", value: formatDate(dto.hireDate) },
     { label: "Employment Status", value: dto.employmentStatus === true ? "Active" : dto.employmentStatus === false ? "Inactive" : null },
-    { label: "Employment Grade", value: dto.employmentGrade != null ? String(dto.employmentGrade) : null },
+    { label: "Employment Grade", value: gradeName ?? (dto.employmentGrade != null ? String(dto.employmentGrade) : null) },
     { label: "Work Location", value: dto.workLocation ?? null },
     { label: "Work Type", value: dto.workType ?? null },
+    { label: "Remarks", value: dto.remarks ?? null },
+  ]);
+}
+
+function mapAttendanceDetails(dto: any): SectionPayload {
+  return fields([
+    { label: "Attendance ID", value: dto.attendanceId ?? null },
     { label: "Remarks", value: dto.remarks ?? null },
   ]);
 }
@@ -289,8 +348,10 @@ function mapGlobalConsiderations(dto: any): SectionPayload {
 
 const MAPPERS: Partial<Record<string, (dto: any) => SectionPayload>> = {
   basic: mapBasicInfo,
+  carddetails: mapCardDetails,
   contact: mapContactInfo,
   employment: mapEmploymentDetails,
+  attendance: mapAttendanceDetails,
   compensation: mapCompensation,
   workhistory: mapWorkHistory,
   qualifications: mapQualifications,
@@ -317,3 +378,5 @@ export function mapSectionPayload(sectionId: string, raw: unknown): SectionPaylo
   const mapper = MAPPERS[sectionId];
   return mapper ? mapper(raw) : (raw as SectionPayload);
 }
+
+export { mapEmploymentDetails };
