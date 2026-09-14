@@ -57,3 +57,23 @@ export const chart = {
 };
 
 export type ModuleKey = keyof typeof moduleColor;
+
+/** Rotating palette for per-leave-type donut charts — cycles through brand + semantic hues so
+ * types stay visually distinct on the Leave Home screen regardless of how many entitlements
+ * the backend returns. */
+export const leaveTypePalette = [
+  brand.solid,
+  semantic.info.solid,
+  semantic.warning.solid,
+  brand.dark1,
+  "#8e6bd6",
+  semantic.destructive.solid,
+];
+
+/** Status-specific styling for leave request cards (Pending/Approved/Rejected) — reuses the
+ * existing semantic tokens so each status reads at a glance without a separate color system. */
+export const leaveStatusStyle = {
+  Pending: { ...semantic.warning, icon: "clock" as const },
+  Approved: { ...semantic.success, icon: "check" as const },
+  Rejected: { ...semantic.destructive, icon: "cancel" as const },
+};

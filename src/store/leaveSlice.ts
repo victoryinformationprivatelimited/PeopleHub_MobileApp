@@ -23,6 +23,12 @@ interface LeaveState {
   requests: Record<LeaveStatus, AsyncSlice<LeaveRequestReturn[]>>;
 }
 
+// TEMP DIAGNOSTIC — remove once the repeat-fetch issue is confirmed fixed. If this line prints
+// every time you navigate to Pending Leave (not just once per app launch), the whole JS bundle
+// is being reloaded between visits — that resets the Redux store, which would explain the
+// symptom without any bug in the caching logic itself.
+console.log("[leaveSlice] module evaluated — this should only happen once per app launch/full reload");
+
 const initialState: LeaveState = {
   entitlements: idleSlice(),
   requests: {
@@ -56,14 +62,25 @@ export const fetchLeaveEntitlements = createAsyncThunk(
 export const fetchLeaveRequests = createAsyncThunk(
   "leave/fetchRequests",
   async (status: LeaveStatus) => {
+    // TEMP DIAGNOSTIC — remove once the repeat-fetch issue is confirmed fixed.
+    console.log(`[leaveSlice] fetchLeaveRequests(${status}) payloadCreator RUNNING — hitting the API now`);
     const res = await REQUEST_FETCHERS[status]();
+    // TEMP DIAGNOSTIC — remove once the repeat-fetch issue is confirmed fixed.
+    console.log(
+      `[leaveSlice] fetchLeaveRequests(${status}) API responded: success=${res.success} status=${res.status} items=${res.data?.length ?? "null"} message=${res.message}`,
+    );
     if (!res.success) throw new Error(res.message);
     return { status, data: res.data ?? [] };
   },
   {
     condition: (status, { getState }) => {
       const slice = (getState() as { leave: LeaveState }).leave.requests[status];
-      return !(slice.data != null && !slice.loading && !slice.error);
+      const cached = slice.data != null && !slice.loading && !slice.error;
+      // TEMP DIAGNOSTIC — remove once the repeat-fetch issue is confirmed fixed.
+      console.log(
+        `[leaveSlice] condition(${status}): data=${slice.data == null ? "null" : `${slice.data.length} items`} loading=${slice.loading} error=${slice.error} -> ${cached ? "SKIP (cached)" : "PROCEED (fetch)"}`,
+      );
+      return !cached;
     },
   },
 );

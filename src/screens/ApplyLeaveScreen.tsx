@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { View, Text, Pressable, TextInput, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { useDispatch } from "react-redux";
 import { SkeletonScreen } from "../components/Skeleton";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import type { LeaveEntitlementReturn, AvailableShiftReturn, CoveringPersonReturn, ApplyLeaveReq } from "../type/leave";
 import { getMyLeaveEntitlements, getAvailableShifts, getCoveringPersons, applyLeave } from "../api/Leave/LeaveAPI";
+import { invalidateEntitlements, invalidateRequests } from "../store/leaveSlice";
+import type { AppDispatch } from "../store";
 import { moduleColor, semantic } from "../theme";
 
 const accent = moduleColor.leave;
@@ -18,6 +21,7 @@ function todayIso() {
 }
 
 export default function ApplyLeaveScreen({ navigation }: Props) {
+  const dispatch = useDispatch<AppDispatch>();
   const [entitlements, setEntitlements] = useState<LeaveEntitlementReturn[]>([]);
   const [shifts, setShifts] = useState<AvailableShiftReturn[]>([]);
   const [coveringPersons, setCoveringPersons] = useState<CoveringPersonReturn[]>([]);
@@ -69,7 +73,14 @@ export default function ApplyLeaveScreen({ navigation }: Props) {
     });
     setSubmitting(false);
     setResult(response.success ? "Submitted for approval." : response.message);
-    if (response.success) setTimeout(() => navigation.goBack(), 1000);
+    if (response.success) {
+      // The new request changes both entitlements (pendingDays/balanceDays) and the Pending
+      // list — invalidate both cached slices so LeaveHomeScreen/LeaveRequestsScreen refetch
+      // fresh data instead of showing what was cached before this submission.
+      dispatch(invalidateEntitlements());
+      dispatch(invalidateRequests("Pending"));
+      setTimeout(() => navigation.goBack(), 1000);
+    }
   }
 
   if (loading) return <SkeletonScreen />;

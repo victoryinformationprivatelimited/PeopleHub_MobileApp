@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { SkeletonScreen } from "../components/Skeleton";
 import OrgTreeList from "../components/OrgTreeList";
 import OrgTreeDiagram from "../components/OrgTreeDiagram";
-import { buildTree, type OrgEntityNode, type OrgRoleNode } from "../type/orgHierarchy";
+import { buildTree, type OrgEntityNode, type OrgRoleNode, type TeamMemberReturn } from "../type/orgHierarchy";
 import {
   fetchMyTeam,
   fetchMyManagers,
@@ -18,8 +18,16 @@ import type { AppDispatch, RootState } from "../store";
 import { brand, neutral, moduleColor } from "../theme";
 import Card from "../components/Card";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react-native";
-import { UserMultipleIcon, GlobeIcon, Building02Icon, UserMultiple02Icon, Briefcase02Icon } from "@hugeicons/core-free-icons";
+import {
+  UserMultipleIcon,
+  GlobeIcon,
+  Building02Icon,
+  UserMultiple02Icon,
+  Briefcase02Icon,
+  ArrowUp01Icon,
+} from "@hugeicons/core-free-icons";
 import type { RootStackParamList } from "../navigation/types";
+import { getSection, getBasicInfoRaw } from "../api/Profile/ProfileAPI";
 
 type ViewMode = "tree" | "list";
 
@@ -72,11 +80,11 @@ function EmptyState() {
   );
 }
 
-function PersonListSection({ view }: { view: "myTeam" | "myManagers" }) {
+function PersonListSection({ view }: { view: "myTeam" }) {
   const dispatch = useDispatch<AppDispatch>();
-  const key = view === "myTeam" ? "team" : "managers";
+  const key = "team" as const;
   const slice = useSelector((state: RootState) => state.org[key]);
-  const fetchThunk = view === "myTeam" ? fetchMyTeam : fetchMyManagers;
+  const fetchThunk = fetchMyTeam;
 
   useEffect(() => {
     dispatch(fetchThunk());
@@ -115,6 +123,134 @@ function PersonListSection({ view }: { view: "myTeam" | "myManagers" }) {
         </Card>
       )}
     />
+  );
+}
+
+/** Same TeamMemberReturn shape as the API returns, plus a flag marking the logged-in employee's
+ * own card (which the API never returns — appended client-side below). */
+type ChainPerson = TeamMemberReturn & { isMe?: boolean };
+
+function fieldValue(fields: { label: string; value: string | null }[], label: string): string | null {
+  return fields.find((f) => f.label === label)?.value ?? null;
+}
+
+/** Fetches the logged-in employee's own name/number/role/image, the same sections HomeScreen
+ * reads from, so the reporting chain can end with a "You" card at the bottom. */
+function useMyself(): ChainPerson | null {
+  const [me, setMe] = useState<ChainPerson | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([getSection("basic"), getBasicInfoRaw(), getSection("employment")]).then(
+      ([basicRes, basicRawRes, employmentRes]) => {
+        if (cancelled) return;
+
+        let employeeName = "";
+        let employeeNumber = "";
+        const basicPayload = basicRes.success ? basicRes.data : null;
+        if (basicPayload?.type === "fields") {
+          const fields = basicPayload.fields;
+          const first = fieldValue(fields, "First Name") ?? "";
+          const last = fieldValue(fields, "Last Name") ?? "";
+          employeeName = [first, last].filter(Boolean).join(" ");
+          employeeNumber = fieldValue(fields, "Employee Number") ?? "";
+        }
+
+        let roleName = "";
+        let unitEntityName = "";
+        const employmentPayload = employmentRes.success ? employmentRes.data : null;
+        if (employmentPayload?.type === "fields") {
+          const fields = employmentPayload.fields;
+          roleName = fieldValue(fields, "Role") ?? "";
+          unitEntityName = fieldValue(fields, "Entity") ?? "";
+        }
+
+        const employeeImage = basicRawRes.success ? basicRawRes.data?.employeeImage ?? null : null;
+
+        setMe({
+          employeeId: -1,
+          employeeNumber,
+          employeeName: employeeName || "You",
+          roleId: null,
+          roleName,
+          roleLevel: null,
+          unitEntityId: null,
+          unitEntityName,
+          employeeImage,
+          isMe: true,
+        });
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return me;
+}
+
+/** "My Managers" as a vertical reporting chain, top (most senior) to bottom, ending with the
+ * logged-in employee's own card — the real GetMyManagers response is ordered closest-manager-first
+ * up to the root, so it's reversed here before appending "me" at the very bottom. */
+function ManagerChainSection() {
+  const dispatch = useDispatch<AppDispatch>();
+  const slice = useSelector((state: RootState) => state.org.managers);
+  const me = useMyself();
+
+  useEffect(() => {
+    dispatch(fetchMyManagers());
+  }, [dispatch]);
+
+  function onRefresh() {
+    dispatch(invalidate("managers"));
+    dispatch(fetchMyManagers());
+  }
+
+  if (slice.loading && slice.data == null) return <SkeletonScreen />;
+
+  const managers = slice.data ?? [];
+  if (managers.length === 0) return <EmptyState />;
+
+  const chain: ChainPerson[] = [...managers].reverse();
+  if (me) chain.push(me);
+
+  return (
+    <ScrollView
+      contentContainerStyle={styles.chainContainer}
+      refreshControl={<RefreshControl refreshing={slice.loading} onRefresh={onRefresh} />}
+    >
+      {chain.map((person, index) => (
+        <View key={`${person.employeeId}-${index}`} style={styles.chainItem}>
+          <Card style={person.isMe ? [styles.chainCard, styles.chainCardMe] : styles.chainCard}>
+            <View style={[styles.avatar, person.isMe && styles.avatarMe]}>
+              {person.employeeImage ? (
+                <Image source={{ uri: person.employeeImage }} style={styles.avatarImage} />
+              ) : (
+                <Text style={styles.avatarText}>{initialsOf(person.employeeName) || "?"}</Text>
+              )}
+            </View>
+            <View style={styles.cardBody}>
+              <View style={styles.nameRow}>
+                <Text style={styles.name}>{person.employeeName}</Text>
+                {person.isMe ? (
+                  <View style={styles.meBadge}>
+                    <Text style={styles.meBadgeText}>You</Text>
+                  </View>
+                ) : null}
+              </View>
+              <Text style={styles.meta}>
+                {person.roleName}
+                {person.unitEntityName ? ` · ${person.unitEntityName}` : ""}
+              </Text>
+              {person.employeeNumber ? <Text style={styles.number}>{person.employeeNumber}</Text> : null}
+            </View>
+          </Card>
+          {index < chain.length - 1 ? (
+            <HugeiconsIcon icon={ArrowUp01Icon} size={18} color="#9aa3ad" strokeWidth={2} />
+          ) : null}
+        </View>
+      ))}
+    </ScrollView>
   );
 }
 
@@ -217,7 +353,8 @@ export default function CompanyHierarchySectionScreen({ route, navigation }: Pro
 
   return (
     <View style={styles.screen}>
-      {view === "myTeam" || view === "myManagers" ? <PersonListSection view={view} /> : null}
+      {view === "myTeam" ? <PersonListSection view={view} /> : null}
+      {view === "myManagers" ? <ManagerChainSection /> : null}
       {view === "companyStructure" ? <CompanyStructureSection /> : null}
       {view === "designationHierarchy" ? <DesignationHierarchySection /> : null}
     </View>
@@ -277,7 +414,15 @@ const styles = StyleSheet.create({
   avatarImage: { width: "100%", height: "100%" },
   avatarText: { color: accent.fg, fontWeight: "700", fontSize: 15 },
   cardBody: { flex: 1 },
+  nameRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   name: { fontSize: 15, fontWeight: "600", color: "#111" },
   meta: { fontSize: 13, color: "#555", marginTop: 2 },
   number: { fontSize: 12, color: "#999", marginTop: 4 },
+  chainContainer: { padding: 16, paddingBottom: 32, alignItems: "center" },
+  chainItem: { width: "100%", maxWidth: 420, alignItems: "center" },
+  chainCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, marginBottom: 6, width: "100%" },
+  chainCardMe: { borderWidth: 1.5, borderColor: brand.solid },
+  avatarMe: { borderWidth: 2, borderColor: brand.solid },
+  meBadge: { backgroundColor: brand.solid, borderRadius: 999, paddingHorizontal: 7, paddingVertical: 2 },
+  meBadgeText: { color: "#fff", fontSize: 10, fontWeight: "700" },
 });
