@@ -8,6 +8,11 @@ import type {
 export const getMyRoster = (date: string) =>
   apiClient.get<RosterReturn>(`/api/Employee/GetMyRoster?date=${date}`);
 
+/** Shift assignment for a date range, including future dates with no attendance record yet —
+ * powers the roster calendar's month grid (ported from PeopleHub-ESS's GetMyRosterRange call). */
+export const getMyRosterRange = (fromDate: string, toDate: string) =>
+  apiClient.get<RosterReturn[]>(`/api/Employee/GetMyRosterRange?fromDate=${fromDate}&toDate=${toDate}`);
+
 export const getMyAttendance = (fromDate: string, toDate: string) =>
   apiClient.get<AttendanceRecordReturn[]>(`/api/Employee/GetMyAttendance?fromDate=${fromDate}&toDate=${toDate}`);
 

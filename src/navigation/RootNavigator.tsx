@@ -4,7 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator, type NativeStackNavigationOptions } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react-native";
-import { Home03Icon, Calendar03Icon, Wallet01Icon, User03Icon } from "@hugeicons/core-free-icons";
+import { Home03Icon, Calendar03Icon, Leaf01Icon, Wallet01Icon, User03Icon } from "@hugeicons/core-free-icons";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store";
 import { checkExistingSession } from "../store/authSlice";
@@ -17,6 +17,10 @@ import ProfileSectionScreen from "../screens/ProfileSectionScreen";
 import AttendanceHomeScreen from "../screens/AttendanceHomeScreen";
 import MarkAttendanceScreen from "../screens/MarkAttendanceScreen";
 import PendingApprovalsScreen from "../screens/PendingApprovalsScreen";
+import RosterCalendarScreen from "../screens/RosterCalendarScreen";
+import RequestRosterChangeScreen from "../screens/RequestRosterChangeScreen";
+import MyAttendanceScreen from "../screens/MyAttendanceScreen";
+import AttendanceRequestScreen from "../screens/AttendanceRequestScreen";
 import LeaveHomeScreen from "../screens/LeaveHomeScreen";
 import LeaveRequestsScreen from "../screens/LeaveRequestsScreen";
 import ApplyLeaveScreen from "../screens/ApplyLeaveScreen";
@@ -55,9 +59,20 @@ function HomeTabStack() {
 function AttendanceTabStack() {
   return (
     <Stack.Navigator screenOptions={headerOptions}>
-      <Stack.Screen name="AttendanceHome" component={AttendanceHomeScreen} options={{ title: "Attendance & Roster" }} />
+      <Stack.Screen name="AttendanceHome" component={AttendanceHomeScreen} options={{ title: "Attendance" }} />
       <Stack.Screen name="MarkAttendance" component={MarkAttendanceScreen} options={{ title: "Mark Attendance" }} />
+      <Stack.Screen name="MyAttendance" component={MyAttendanceScreen} options={{ title: "My Attendance" }} />
+      <Stack.Screen name="AttendanceRequest" component={AttendanceRequestScreen} options={{ title: "Attendance Request" }} />
       <Stack.Screen name="PendingApprovals" component={PendingApprovalsScreen} options={{ title: "Pending Approvals" }} />
+      <Stack.Screen name="RosterCalendar" component={RosterCalendarScreen} options={{ title: "My Roster" }} />
+      <Stack.Screen name="RequestRosterChange" component={RequestRosterChangeScreen} options={{ title: "Request Roster Change" }} />
+    </Stack.Navigator>
+  );
+}
+
+function LeaveTabStack() {
+  return (
+    <Stack.Navigator screenOptions={headerOptions}>
       <Stack.Screen name="LeaveHome" component={LeaveHomeScreen} options={{ title: "Leave" }} />
       <Stack.Screen name="LeaveRequests" component={LeaveRequestsScreen} />
       <Stack.Screen name="ApplyLeave" component={ApplyLeaveScreen} options={{ title: "Apply for Leave" }} />
@@ -131,6 +146,11 @@ function MainTabs() {
         name="AttendanceTab"
         component={AttendanceTabStack}
         options={{ title: "Attendance", tabBarIcon: ({ focused }) => <TabIcon icon={Calendar03Icon} focused={focused} /> }}
+      />
+      <Tab.Screen
+        name="LeaveTab"
+        component={LeaveTabStack}
+        options={{ title: "Leave", tabBarIcon: ({ focused }) => <TabIcon icon={Leaf01Icon} focused={focused} /> }}
       />
       <Tab.Screen
         name="PayrollTab"

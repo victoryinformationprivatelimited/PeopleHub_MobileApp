@@ -11,7 +11,11 @@ export type RootStackParamList = {
 
   AttendanceHome: undefined;
   MarkAttendance: undefined;
+  MyAttendance: undefined;
+  AttendanceRequest: undefined;
   PendingApprovals: undefined;
+  RosterCalendar: undefined;
+  RequestRosterChange: { rosterDate: string };
   LeaveHome: undefined;
   LeaveRequests: { status: "Pending" | "Approved" | "Rejected" };
   ApplyLeave: undefined;
@@ -36,6 +40,7 @@ export type RootNavParamList = {
 export type MainTabParamList = {
   HomeTab: undefined;
   AttendanceTab: undefined;
+  LeaveTab: undefined;
   PayrollTab: undefined;
   ProfileTab: undefined;
 };

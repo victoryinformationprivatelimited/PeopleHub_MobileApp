@@ -3,6 +3,7 @@ import authReducer from "./authSlice";
 import profileReducer from "./profileSlice";
 import orgReducer from "./orgSlice";
 import leaveReducer from "./leaveSlice";
+import rosterReducer from "./rosterSlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     profile: profileReducer,
     org: orgReducer,
     leave: leaveReducer,
+    roster: rosterReducer,
   },
 });
 

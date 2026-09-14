@@ -10,17 +10,19 @@ import {
   CalendarAdd02Icon,
   ClipboardCheckIcon,
   ReceiptDollarIcon,
-  Wallet01Icon,
   Structure02Icon,
+  ArrowRight02Icon,
+  Clock01Icon,
 } from "@hugeicons/core-free-icons";
 import type { RootStackParamList } from "../navigation/types";
-import { neutral, brand, chart } from "../theme";
+import type { RosterReturn } from "../type/attendance";
+import { neutral, brand, semantic, chart } from "../theme";
 import GradientHeader from "../components/GradientHeader";
 import StatTile from "../components/StatTile";
 import Card from "../components/Card";
 import PieChart from "../components/PieChart";
 import { getSection, getBasicInfoRaw } from "../api/Profile/ProfileAPI";
-import { getMyAttendanceSummary } from "../api/Attendance/AttendanceAPI";
+import { getMyAttendanceSummary, getMyPendingApprovals, getMyRoster } from "../api/Attendance/AttendanceAPI";
 import { getMyLeaveEntitlements } from "../api/Leave/LeaveAPI";
 import { getMyPayPeriods, getMyPayslip } from "../api/Payroll/PayrollAPI";
 
@@ -35,6 +37,8 @@ interface DashboardData {
   attendanceSummary: { presentDays: number; absentDays: number; leaveDays: number } | null;
   leaveBalance: number | null;
   netPay: { amount: number; payPeriodId: number; label: string } | null;
+  pendingApprovalsCount: number;
+  todayRoster: RosterReturn | null;
 }
 
 function fieldValue(fields: { label: string; value: string | null }[], label: string): string | null {
@@ -44,6 +48,10 @@ function fieldValue(fields: { label: string; value: string | null }[], label: st
 function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   return (parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "");
+}
+
+function todayIso() {
+  return new Date().toISOString().slice(0, 10);
 }
 
 /** Placeholder dashboard numbers shown until a real backend/tenant is wired up, so the
@@ -57,6 +65,8 @@ const DUMMY_DATA: DashboardData = {
   attendanceSummary: { presentDays: 18, absentDays: 2, leaveDays: 1 },
   leaveBalance: 14,
   netPay: { amount: 3250, payPeriodId: 1, label: "This month" },
+  pendingApprovalsCount: 0,
+  todayRoster: null,
 };
 
 export default function HomeScreen({ navigation }: Props) {
@@ -73,7 +83,9 @@ export default function HomeScreen({ navigation }: Props) {
       getMyAttendanceSummary(now.getFullYear(), now.getMonth() + 1),
       getMyLeaveEntitlements(now.getFullYear()),
       getMyPayPeriods(),
-    ]).then(async ([basicRes, basicRawRes, employmentRes, attendanceRes, leaveRes, payPeriodsRes]) => {
+      getMyPendingApprovals(),
+      getMyRoster(todayIso()),
+    ]).then(async ([basicRes, basicRawRes, employmentRes, attendanceRes, leaveRes, payPeriodsRes, approvalsRes, rosterRes]) => {
       let fullName = "";
       let employeeNumber = "";
       const basicPayload = basicRes.success ? basicRes.data : null;
@@ -126,6 +138,8 @@ export default function HomeScreen({ navigation }: Props) {
         attendanceSummary: attendanceSummary ?? DUMMY_DATA.attendanceSummary,
         leaveBalance: leaveBalance ?? DUMMY_DATA.leaveBalance,
         netPay: netPay ?? DUMMY_DATA.netPay,
+        pendingApprovalsCount: approvalsRes.success ? approvalsRes.data?.length ?? 0 : 0,
+        todayRoster: rosterRes.success ? rosterRes.data : null,
       });
       setLoading(false);
     });
@@ -160,30 +174,6 @@ export default function HomeScreen({ navigation }: Props) {
         </View>
       </GradientHeader>
 
-      <View style={styles.statsRow}>
-        <StatTile
-          icon={CheckmarkCircle02Icon}
-          value={attendanceRate != null ? `${attendanceRate}%` : "—"}
-          label="Attendance"
-          onPress={() => navigation.getParent()?.navigate("AttendanceTab" as never)}
-          testID="stat-attendance"
-        />
-        <StatTile
-          icon={DollarCircleIcon}
-          value={data.netPay ? `$${data.netPay.amount.toFixed(0)}` : "N/A"}
-          label="Net Pay"
-          onPress={() => navigation.getParent()?.navigate("PayrollTab" as never)}
-          testID="stat-netpay"
-        />
-        <StatTile
-          icon={Calendar03Icon}
-          value={data.leaveBalance != null ? `${data.leaveBalance}` : "—"}
-          label="Leave Days"
-          onPress={() => (navigation.getParent() as any)?.navigate("AttendanceTab", { screen: "LeaveHome" })}
-          testID="stat-leave"
-        />
-      </View>
-
       {data.attendanceSummary ? (
         <Card style={styles.card}>
           <Text style={styles.cardTitle}>Attendance This Month</Text>
@@ -197,32 +187,73 @@ export default function HomeScreen({ navigation }: Props) {
         </Card>
       ) : null}
 
+      <Pressable
+        style={({ pressed }) => [styles.markAttendanceCard, pressed && styles.pressed]}
+        onPress={() => navigation.navigate("MarkAttendance")}
+        testID="home-mark-attendance"
+      >
+        <View style={styles.markAttendanceIconBadge}>
+          <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} color="#fff" strokeWidth={1.8} />
+        </View>
+        <View style={styles.markAttendanceTextWrap}>
+          <Text style={styles.markAttendanceTitle}>Mark today's attendance</Text>
+          <Text style={styles.markAttendanceSubtitle}>Tap to check in for today</Text>
+        </View>
+        <HugeiconsIcon icon={ArrowRight02Icon} size={18} color="#fff" strokeWidth={2} />
+      </Pressable>
+
+      <View style={styles.statsRow}>
+        <StatTile
+          icon={CheckmarkCircle02Icon}
+          value={attendanceRate != null ? `${attendanceRate}%` : "—"}
+          label="Attendance"
+          tint={{ bg: semantic.success.bg, fg: semantic.success.fg }}
+          onPress={() => navigation.getParent()?.navigate("AttendanceTab" as never)}
+          testID="stat-attendance"
+        />
+        <StatTile
+          icon={DollarCircleIcon}
+          value={data.netPay ? `$${data.netPay.amount.toFixed(0)}` : "N/A"}
+          label="Net Pay"
+          tint={{ bg: semantic.info.bg, fg: semantic.info.fg }}
+          onPress={() => navigation.getParent()?.navigate("PayrollTab" as never)}
+          testID="stat-netpay"
+        />
+        <StatTile
+          icon={Calendar03Icon}
+          value={data.leaveBalance != null ? `${data.leaveBalance}` : "—"}
+          label="Leave Days"
+          tint={{ bg: "#e6f2ee", fg: brand.dark1 }}
+          onPress={() => navigation.getParent()?.navigate("LeaveTab" as never)}
+          testID="stat-leave"
+        />
+      </View>
+
+      {data.pendingApprovalsCount > 0 ? (
+        <Pressable
+          style={({ pressed }) => [styles.approvalsCard, pressed && styles.pressed]}
+          onPress={() => navigation.navigate("PendingApprovals")}
+          testID="home-pending-approvals"
+        >
+          <View style={[styles.approvalsIconBadge, { backgroundColor: semantic.warning.bg }]}>
+            <HugeiconsIcon icon={ClipboardCheckIcon} size={20} color={semantic.warning.fg} strokeWidth={1.8} />
+          </View>
+          <View style={styles.approvalsTextWrap}>
+            <Text style={styles.approvalsCount}>{data.pendingApprovalsCount}</Text>
+            <Text style={styles.approvalsLabel}>Pending approval{data.pendingApprovalsCount === 1 ? "" : "s"} awaiting you</Text>
+          </View>
+          <HugeiconsIcon icon={ArrowRight02Icon} size={16} color={neutral.textFaint} strokeWidth={2} />
+        </Pressable>
+      ) : null}
+
       <Card style={styles.card}>
         <Text style={styles.cardTitle}>Quick Actions</Text>
         <View style={styles.actionsGrid}>
-          <ActionButton
-            icon={CheckmarkCircle02Icon}
-            label="Mark Attendance"
-            onPress={() => navigation.navigate("MarkAttendance")}
-            testID="qa-mark-attendance"
-          />
-          <ActionButton
-            icon={Calendar03Icon}
-            label="Leave"
-            onPress={() => (navigation.getParent() as any)?.navigate("AttendanceTab", { screen: "LeaveHome" })}
-            testID="qa-leave"
-          />
           <ActionButton
             icon={CalendarAdd02Icon}
             label="Apply for Leave"
             onPress={() => navigation.navigate("ApplyLeave")}
             testID="qa-apply-leave"
-          />
-          <ActionButton
-            icon={ClipboardCheckIcon}
-            label="Pending Approvals"
-            onPress={() => navigation.navigate("PendingApprovals")}
-            testID="qa-approvals"
           />
           {data.netPay ? (
             <ActionButton
@@ -233,18 +264,32 @@ export default function HomeScreen({ navigation }: Props) {
             />
           ) : null}
           <ActionButton
-            icon={Wallet01Icon}
-            label="Request Reimbursement"
-            onPress={() => navigation.navigate("RequestReimbursement")}
-            testID="qa-reimbursement"
-          />
-          <ActionButton
             icon={Structure02Icon}
             label="Company Hierarchy"
             onPress={() => navigation.navigate("CompanyHierarchy")}
             testID="qa-hierarchy"
           />
         </View>
+      </Card>
+
+      <Card style={styles.card}>
+        <Text style={styles.cardTitle}>Today's Schedule</Text>
+        {data.todayRoster?.workPatternName ? (
+          <View style={styles.scheduleRow}>
+            <View style={styles.scheduleIconBadge}>
+              <HugeiconsIcon icon={Clock01Icon} size={17} color={brand.dark1} strokeWidth={1.8} />
+            </View>
+            <View style={styles.scheduleTextWrap}>
+              <Text style={styles.scheduleTitle}>{data.todayRoster.workPatternName}</Text>
+              <Text style={styles.scheduleSubtitle}>
+                {data.todayRoster.rosterStartTime} – {data.todayRoster.rosterEndTime}
+                {data.todayRoster.unitEntityName ? ` · ${data.todayRoster.unitEntityName}` : ""}
+              </Text>
+            </View>
+          </View>
+        ) : (
+          <Text style={styles.scheduleEmpty}>No shift scheduled for today.</Text>
+        )}
       </Card>
     </ScrollView>
   );
@@ -277,6 +322,7 @@ function ActionButton({
 
 const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 32 },
+  pressed: { opacity: 0.85 },
   heroCentered: { alignItems: "center" },
   avatarLarge: {
     width: 92, height: 92, borderRadius: 46,
@@ -291,9 +337,33 @@ const styles = StyleSheet.create({
   heroNameCentered: { color: "#fff", fontWeight: "700", fontSize: 20, textAlign: "center" },
   heroMetaCentered: { color: "rgba(255,255,255,0.85)", fontSize: 13, marginTop: 3, textAlign: "center" },
   hero: { paddingBottom: 36, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
-  statsRow: { flexDirection: "row", gap: 10, paddingHorizontal: 16, marginTop: -16 },
   card: { padding: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
   cardTitle: { fontSize: 15, fontWeight: "700", color: neutral.text, marginBottom: 16 },
+  markAttendanceCard: {
+    flexDirection: "row", alignItems: "center", gap: 12,
+    backgroundColor: brand.solid, borderRadius: 16, padding: 16,
+    marginHorizontal: 16, marginTop: 16,
+    shadowColor: brand.solid, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.25, shadowRadius: 8, elevation: 3,
+  },
+  markAttendanceIconBadge: {
+    width: 40, height: 40, borderRadius: 20, backgroundColor: "rgba(255,255,255,0.22)",
+    alignItems: "center", justifyContent: "center",
+  },
+  markAttendanceTextWrap: { flex: 1 },
+  markAttendanceTitle: { color: "#fff", fontWeight: "700", fontSize: 15 },
+  markAttendanceSubtitle: { color: "rgba(255,255,255,0.85)", fontSize: 12.5, marginTop: 2 },
+  statsRow: { flexDirection: "row", gap: 10, paddingHorizontal: 16, marginTop: 16 },
+  approvalsCard: {
+    flexDirection: "row", alignItems: "center", gap: 12,
+    backgroundColor: "#fff", borderRadius: 16, padding: 16,
+    marginHorizontal: 16, marginTop: 16,
+    borderWidth: 1, borderColor: neutral.border,
+    shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
+  },
+  approvalsIconBadge: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
+  approvalsTextWrap: { flex: 1 },
+  approvalsCount: { fontSize: 19, fontWeight: "700", color: neutral.text },
+  approvalsLabel: { fontSize: 12.5, color: neutral.textMuted, marginTop: 1 },
   actionsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   actionButton: {
     backgroundColor: "#fff",
@@ -302,7 +372,7 @@ const styles = StyleSheet.create({
     borderColor: "rgba(31,35,40,0.08)",
     paddingVertical: 16,
     paddingHorizontal: 12,
-    minWidth: "45%",
+    minWidth: "30%",
     flexGrow: 1,
     alignItems: "center",
     gap: 8,
@@ -321,5 +391,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  actionButtonText: { color: brand.dark1, fontWeight: "600", fontSize: 13, textAlign: "center" },
+  actionButtonText: { color: brand.dark1, fontWeight: "600", fontSize: 12.5, textAlign: "center" },
+  scheduleRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  scheduleIconBadge: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#e6f2ee", alignItems: "center", justifyContent: "center" },
+  scheduleTextWrap: { flex: 1 },
+  scheduleTitle: { fontSize: 14.5, fontWeight: "700", color: neutral.text },
+  scheduleSubtitle: { fontSize: 12.5, color: neutral.textMuted, marginTop: 2 },
+  scheduleEmpty: { fontSize: 13, color: neutral.textMuted },
 });

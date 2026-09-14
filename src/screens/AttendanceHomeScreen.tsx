@@ -9,7 +9,9 @@ import { moduleColor, chart } from "../theme";
 import PieChart from "../components/PieChart";
 import Card from "../components/Card";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react-native";
-import { CheckmarkCircle02Icon, Calendar03Icon, ClipboardCheckIcon } from "@hugeicons/core-free-icons";
+import {
+  CheckmarkCircle02Icon, ClipboardCheckIcon, CalendarRangeIcon, ArrowRight02Icon, ListViewIcon, FileEditIcon,
+} from "@hugeicons/core-free-icons";
 
 const accent = moduleColor.attendance;
 
@@ -51,6 +53,15 @@ export default function AttendanceHomeScreen({ navigation }: Props) {
         ) : (
           <Text style={styles.lineMuted}>No roster assigned for today.</Text>
         )}
+        <Pressable
+          style={({ pressed }) => [styles.viewRosterLink, pressed && styles.buttonPressed]}
+          onPress={() => navigation.navigate("RosterCalendar")}
+          testID="view-roster-button"
+        >
+          <HugeiconsIcon icon={CalendarRangeIcon} size={15} color={accent.fg} strokeWidth={1.8} />
+          <Text style={styles.viewRosterLinkText}>View full roster</Text>
+          <HugeiconsIcon icon={ArrowRight02Icon} size={14} color={accent.fg} strokeWidth={1.8} />
+        </Pressable>
       </Card>
 
       <Card style={styles.card}>
@@ -78,10 +89,18 @@ export default function AttendanceHomeScreen({ navigation }: Props) {
         testID="mark-attendance-button"
       />
       <ActionRow
-        icon={Calendar03Icon}
-        label="Leave"
-        onPress={() => navigation.navigate("LeaveHome")}
-        testID="leave-home-button"
+        icon={ListViewIcon}
+        label="My attendance"
+        onPress={() => navigation.navigate("MyAttendance")}
+        testID="my-attendance-button"
+        variant="secondary"
+      />
+      <ActionRow
+        icon={FileEditIcon}
+        label="Attendance request"
+        onPress={() => navigation.navigate("AttendanceRequest")}
+        testID="attendance-request-button"
+        variant="secondary"
       />
       <ActionRow
         icon={ClipboardCheckIcon}
@@ -143,6 +162,11 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 13, color: accent.fg, marginBottom: 12, textTransform: "uppercase", fontWeight: "700" },
   line: { fontSize: 16, fontWeight: "600", color: "#111" },
   lineMuted: { fontSize: 14, color: "#555", marginTop: 2 },
+  viewRosterLink: {
+    flexDirection: "row", alignItems: "center", gap: 6, marginTop: 14, paddingTop: 12,
+    borderTopWidth: 1, borderTopColor: "rgba(31,35,40,0.08)",
+  },
+  viewRosterLinkText: { flex: 1, fontSize: 13.5, fontWeight: "600", color: accent.fg },
   summaryRow: { flexDirection: "row", justifyContent: "space-between", marginTop: 16 },
   stat: { alignItems: "center" },
   statValue: { fontSize: 22, fontWeight: "700", color: accent.fg },

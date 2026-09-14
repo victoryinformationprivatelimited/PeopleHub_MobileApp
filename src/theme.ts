@@ -77,3 +77,31 @@ export const leaveStatusStyle = {
   Approved: { ...semantic.success, icon: "check" as const },
   Rejected: { ...semantic.destructive, icon: "cancel" as const },
 };
+
+/** Rotating bg/fg pairs for the roster calendar's shift-type cells — same idea as
+ * leaveTypePalette, ported from PeopleHub-ESS's RosterCalendarPage SHIFT_PALETTE. */
+export const rosterShiftPalette = [
+  { bg: semantic.success.bg, fg: semantic.success.fg },
+  { bg: semantic.info.bg, fg: semantic.info.fg },
+  { bg: semantic.warning.bg, fg: semantic.warning.fg },
+  { bg: "#f3e8ff", fg: "#7c3aed" },
+];
+
+/** Fixed categories that override the rotating shift palette on the roster calendar. */
+export const rosterCategoryStyle = {
+  holiday: { bg: "#f3e8ff", fg: "#7c3aed" },
+  weekend: { bg: neutral.background, fg: neutral.textMuted },
+};
+
+/** Per-day attendance status styling for the My Attendance list — mirrors PeopleHub-ESS's
+ * statusStyle.ts ATTENDANCE_STATUS_CLASS mapping so status colors stay consistent with the portal. */
+export const attendanceStatusStyle: Record<string, { bg: string; fg: string }> = {
+  Present: semantic.success,
+  Late: semantic.warning,
+  Absent: semantic.destructive,
+  OnLeave: semantic.info,
+  Holiday: { bg: "#f3e8ff", fg: "#7c3aed" },
+  Weekend: { bg: neutral.background, fg: neutral.textMuted },
+  Scheduled: { bg: neutral.background, fg: neutral.textMuted },
+  NoPay: { bg: "#fde7f3", fg: "#be185d" },
+};
