@@ -31,6 +31,7 @@ export default function LoginScreen() {
   const [errorVariant, setErrorVariant] = useState<BannerVariant>("destructive");
   const [usernameFocused, setUsernameFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
+  const [buttonHovered, setButtonHovered] = useState(false);
 
   async function handleSubmit() {
     setSubmitting(true);
@@ -66,13 +67,13 @@ export default function LoginScreen() {
         >
           <View style={styles.brandBlock}>
             <Image
-              source={require("../../assets/peoplehub-logo-white.png")}
+              source={require("../../assets/peoplehub-favicon-logo.png")}
               style={styles.logoImage}
               resizeMode="contain"
             />
-            <View style={styles.essPill}>
+            {/* <View style={styles.essPill}>
               <Text style={styles.essPillText}>Employee Self Service</Text>
-            </View>
+            </View> */}
           </View>
 
           <View style={styles.card}>
@@ -133,11 +134,13 @@ export default function LoginScreen() {
             <Pressable
               style={({ pressed }) => [
                 styles.button,
-                { backgroundColor: tokens.brandC },
+                { backgroundColor: buttonHovered ? tokens.brandB : tokens.brandC },
                 pressed && styles.buttonPressed,
                 submitting && styles.buttonDisabled,
               ]}
               onPress={handleSubmit}
+              onHoverIn={() => setButtonHovered(true)}
+              onHoverOut={() => setButtonHovered(false)}
               disabled={submitting}
               testID="login-button"
             >
@@ -227,6 +230,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 4,
+    ...(Platform.OS === "web" ? ({ transition: "background-color 0.2s ease", cursor: "pointer" } as object) : {}),
   },
   buttonPressed: { opacity: 0.85 },
   buttonDisabled: { opacity: 0.7 },

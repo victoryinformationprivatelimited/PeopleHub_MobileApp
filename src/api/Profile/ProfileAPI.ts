@@ -5,6 +5,19 @@ import { mapSectionPayload, mapEmploymentDetails, type EmploymentLookups } from 
 
 /** Self-scoped only — no employeeId is ever sent by the client, matching web's ProfileAPI.ts. */
 
+// Raw DTO variant of "basic" — ported from ESS's ProfileAPI.getBasicInfoRaw. mapBasicInfo (the
+// display-ready SectionPayload from getSection("basic")) drops employeeImage, so callers that
+// need the avatar photo (e.g. the home screen hero) must hit this instead.
+export interface BasicInfoRaw {
+  employeeImage: string | null;
+  firstName: string | null;
+  lastName: string | null;
+}
+
+export function getBasicInfoRaw(): Promise<ApiResult<BasicInfoRaw>> {
+  return apiClient.get<BasicInfoRaw>(`/api/Employee/${SECTION_META.basic.route}`);
+}
+
 // Session-level memoized cache, ported from ESS's ProfileAPI.ts — GetMyEmploymentLookups is a
 // fixed lookup list (roles, categories, types, entities, grades), not per-employee data, so one
 // fetch covers the whole session. Failures are NOT cached, so a later retry can succeed.

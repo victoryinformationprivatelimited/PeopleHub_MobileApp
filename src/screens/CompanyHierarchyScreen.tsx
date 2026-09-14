@@ -1,126 +1,80 @@
-import { useEffect, useState, useCallback } from "react";
-import { View, Text, StyleSheet, SectionList, RefreshControl } from "react-native";
-import { SkeletonScreen } from "../components/Skeleton";
-import type { TeamMemberReturn } from "../type/orgHierarchy";
-import { getMyTeam, getMyManagers } from "../api/OrgHierarchy/OrgHierarchyAPI";
-import { moduleColor } from "../theme";
-import Card from "../components/Card";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import { UserMultipleIcon } from "@hugeicons/core-free-icons";
+import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react-native";
+import {
+  ArrowRight02Icon,
+  UserMultiple02Icon,
+  UserGroupIcon,
+  Structure02Icon,
+  Briefcase02Icon,
+} from "@hugeicons/core-free-icons";
+import type { RootStackParamList } from "../navigation/types";
+import type { OrgHierarchyView } from "../type/orgHierarchy";
+import { neutral, moduleColor } from "../theme";
 
-function initialsOf(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase();
-}
+type Props = NativeStackScreenProps<RootStackParamList, "CompanyHierarchy">;
 
 const accent = moduleColor.hierarchy;
 
-interface Section {
-  title: string;
-  data: TeamMemberReturn[];
-}
+/** Menu of the 4 Company Hierarchy destinations — ESS has these as 4 separate pages/routes
+ * (not tabs of one screen), so mobile mirrors that with 4 cards navigating to one shared detail
+ * screen, using the same section-card design as the Profile screen's list. */
+const ITEMS: { view: OrgHierarchyView; label: string; caption: string; icon: IconSvgElement }[] = [
+  { view: "myTeam", label: "My Team", caption: "People in your entity", icon: UserMultiple02Icon },
+  { view: "myManagers", label: "My Managers", caption: "Your reporting chain", icon: UserGroupIcon },
+  { view: "companyStructure", label: "Company Structure", caption: "Entities and units", icon: Structure02Icon },
+  { view: "designationHierarchy", label: "Designation Hierarchy", caption: "Roles and levels", icon: Briefcase02Icon },
+];
 
-export default function CompanyHierarchyScreen() {
-  const [sections, setSections] = useState<Section[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const load = useCallback(async () => {
-    const [managersRes, teamRes] = await Promise.all([getMyManagers(), getMyTeam()]);
-    setSections([
-      { title: "My Managers", data: managersRes.success && managersRes.data ? managersRes.data : [] },
-      { title: "My Team", data: teamRes.success && teamRes.data ? teamRes.data : [] },
-    ]);
-  }, []);
-
-  useEffect(() => {
-    load().then(() => setLoading(false));
-  }, [load]);
-
-  async function onRefresh() {
-    setRefreshing(true);
-    await load();
-    setRefreshing(false);
-  }
-
-  if (loading) return <SkeletonScreen />;
-
+export default function CompanyHierarchyScreen({ navigation }: Props) {
   return (
-    <SectionList
-      contentContainerStyle={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      sections={sections}
-      keyExtractor={(item, index) => `${item.employeeId}-${index}`}
-      renderSectionHeader={({ section }) => <Text style={styles.sectionTitle}>{section.title}</Text>}
-      renderSectionFooter={({ section }) =>
-        section.data.length === 0 ? (
-          <View style={styles.empty}>
-            <View style={styles.emptyIconBadge}>
-              <HugeiconsIcon icon={UserMultipleIcon} size={22} color={accent.fg} strokeWidth={1.6} />
-            </View>
-            <Text style={styles.emptyText}>None found.</Text>
+    <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
+      {ITEMS.map((item) => (
+        <Pressable
+          key={item.view}
+          style={({ pressed }) => [styles.sectionCard, pressed && styles.sectionCardPressed]}
+          onPress={() => navigation.navigate("CompanyHierarchySection", { view: item.view, label: item.label })}
+          testID={`hierarchy-card-${item.view}`}
+        >
+          <View style={styles.sectionIconBadge}>
+            <HugeiconsIcon icon={item.icon} size={19} color={accent.fg} strokeWidth={1.8} />
           </View>
-        ) : null
-      }
-      renderItem={({ item }) => (
-        <Card style={styles.card}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initialsOf(item.employeeName) || "?"}</Text>
+          <View style={styles.sectionCardBody}>
+            <Text style={styles.sectionCardTitle}>{item.label}</Text>
+            <Text style={styles.sectionCardCaption}>{item.caption}</Text>
           </View>
-          <View style={styles.cardBody}>
-            <Text style={styles.name}>{item.employeeName}</Text>
-            <Text style={styles.meta}>{item.roleName}{item.unitEntityName ? ` · ${item.unitEntityName}` : ""}</Text>
-            <Text style={styles.number}>{item.employeeNumber}</Text>
-          </View>
-        </Card>
-      )}
-    />
+          <HugeiconsIcon icon={ArrowRight02Icon} size={16} color="#9aa3ad" strokeWidth={1.8} />
+        </Pressable>
+      ))}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: neutral.background },
   container: { padding: 16, paddingBottom: 32 },
-  sectionTitle: {
-    fontSize: 12.5,
-    color: accent.fg,
-    textTransform: "uppercase",
-    letterSpacing: 0.3,
-    marginTop: 20,
-    marginBottom: 10,
-    fontWeight: "700",
-  },
-  empty: {
+  sectionCard: {
+    flexDirection: "row",
     alignItems: "center",
+    gap: 12,
     backgroundColor: "#fff",
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: "rgba(31,35,40,0.08)",
-    borderStyle: "dashed",
-    paddingVertical: 24,
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
     marginBottom: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
   },
-  emptyIconBadge: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  sectionCardPressed: { backgroundColor: "#f5f6f7" },
+  sectionIconBadge: {
+    width: 38, height: 38, borderRadius: 12,
     backgroundColor: accent.bg,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
+    alignItems: "center", justifyContent: "center",
   },
-  emptyText: { color: "#8a8f98", fontSize: 13.5, fontWeight: "500" },
-  card: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, marginBottom: 10 },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: accent.bg,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: { color: accent.fg, fontWeight: "700", fontSize: 15 },
-  cardBody: { flex: 1 },
-  name: { fontSize: 15, fontWeight: "600", color: "#111" },
-  meta: { fontSize: 13, color: "#555", marginTop: 2 },
-  number: { fontSize: 12, color: "#999", marginTop: 4 },
+  sectionCardBody: { flex: 1 },
+  sectionCardTitle: { fontSize: 14.5, color: "#1f2328", fontWeight: "600" },
+  sectionCardCaption: { fontSize: 12, color: "#9aa3ad", marginTop: 2 },
 });

@@ -1,20 +1,83 @@
-import { useEffect } from "react";
-import { SectionList, Text, Pressable, View, StyleSheet } from "react-native";
+import { useEffect, useState } from "react";
+import { SectionList, Text, Pressable, View, StyleSheet, Image } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { HugeiconsIcon } from "@hugeicons/react-native";
-import { ArrowRight02Icon, Logout01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react-native";
+import {
+  ArrowRight02Icon,
+  Logout01Icon,
+  IdIcon,
+  CreditCardAcceptIcon,
+  Contact01Icon,
+  Briefcase02Icon,
+  Clock01Icon,
+  Wallet01Icon,
+  Clock03Icon,
+  GraduationCapIcon,
+  Certificate01Icon,
+  GlobeIcon,
+  StarAward01Icon,
+  PassportIcon,
+  Shield01Icon,
+  FileTextIcon,
+  Alert01Icon,
+  TaskDone01Icon,
+  LockIcon,
+  HeartIcon,
+  SmileIcon,
+  UserGroupIcon,
+  TrophyIcon,
+  Folder01Icon,
+  HeartPulseIcon,
+  LogOutIcon,
+  EarthIcon,
+} from "@hugeicons/core-free-icons";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store";
 import { setLoggedOut } from "../store/authSlice";
 import { logout } from "../api/Auth/AuthAPI";
 import { fetchSection } from "../store/profileSlice";
+import { getBasicInfoRaw } from "../api/Profile/ProfileAPI";
 import { SECTION_GROUPS } from "../type/sectionMeta";
+import type { SectionId } from "../type/profile";
 import type { RootStackParamList } from "../navigation/types";
 import { moduleColor, semantic } from "../theme";
 import GradientHeader from "../components/GradientHeader";
 import Card from "../components/Card";
 
 type Props = NativeStackScreenProps<RootStackParamList, "ProfileList">;
+
+/** Per-section icon, each card visually distinct by shape rather than color — this app uses one
+ * consistent brand green everywhere (theme.ts's moduleColor comment), so every badge shares the
+ * same tint instead of a color-per-section palette. */
+const sectionAccent = moduleColor.profile;
+
+const SECTION_ICONS: Record<SectionId, IconSvgElement> = {
+  basic: IdIcon,
+  carddetails: CreditCardAcceptIcon,
+  contact: Contact01Icon,
+  employment: Briefcase02Icon,
+  attendance: Clock01Icon,
+  compensation: Wallet01Icon,
+  workhistory: Clock03Icon,
+  qualifications: GraduationCapIcon,
+  certifications: Certificate01Icon,
+  languages: GlobeIcon,
+  skills: StarAward01Icon,
+  visa: PassportIcon,
+  bgcheck: Shield01Icon,
+  agreements: FileTextIcon,
+  disciplinary: Alert01Icon,
+  policy: TaskDone01Icon,
+  privacy: LockIcon,
+  engagements: HeartIcon,
+  hobbies: SmileIcon,
+  groups: UserGroupIcon,
+  recognition: TrophyIcon,
+  documents: Folder01Icon,
+  health: HeartPulseIcon,
+  exit: LogOutIcon,
+  global: EarthIcon,
+};
 
 function fieldValue(fields: { label: string; value: string | null }[], label: string): string | null {
   return fields.find((f) => f.label === label)?.value ?? null;
@@ -28,9 +91,13 @@ function initialsOf(name: string): string {
 export default function ProfileListScreen({ navigation }: Props) {
   const dispatch = useDispatch<AppDispatch>();
   const basic = useSelector((state: RootState) => state.profile.sections.basic);
+  const [employeeImage, setEmployeeImage] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchSection("basic"));
+    getBasicInfoRaw().then((res) => {
+      if (res.success) setEmployeeImage(res.data?.employeeImage ?? null);
+    });
   }, []);
 
   const basicFields = basic?.data?.type === "fields" ? basic.data.fields : [];
@@ -55,14 +122,16 @@ export default function ProfileListScreen({ navigation }: Props) {
         ListHeaderComponent={
           <>
             <GradientHeader style={styles.hero}>
-              <View style={styles.heroRow}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarText}>{initialsOf(fullName) || "?"}</Text>
+              <View style={styles.heroCentered}>
+                <View style={styles.avatarLarge}>
+                  {employeeImage ? (
+                    <Image source={{ uri: employeeImage }} style={styles.avatarImage} />
+                  ) : (
+                    <Text style={styles.avatarLargeText}>{initialsOf(fullName) || "?"}</Text>
+                  )}
                 </View>
-                <View>
-                  <Text style={styles.heroName}>{fullName || "Employee"}</Text>
-                  {employeeNumber ? <Text style={styles.heroMeta}>{employeeNumber}</Text> : null}
-                </View>
+                <Text style={styles.heroNameCentered}>{fullName || "Employee"}</Text>
+                {employeeNumber ? <Text style={styles.heroMetaCentered}>{employeeNumber}</Text> : null}
               </View>
             </GradientHeader>
             <Pressable onPress={() => navigation.navigate("CompanyHierarchy")} testID="profile-hierarchy-link">
@@ -76,25 +145,22 @@ export default function ProfileListScreen({ navigation }: Props) {
           </>
         }
         renderSectionHeader={({ section }) => <Text style={styles.header}>{section.title}</Text>}
-        renderItem={({ item, index, section }) => {
-          const isFirst = index === 0;
-          const isLast = index === section.data.length - 1;
-          return (
-            <Pressable
-              style={({ pressed }) => [
-                styles.row,
-                isFirst && styles.rowFirst,
-                isLast && styles.rowLast,
-                !isLast && styles.rowDivider,
-                pressed && styles.rowPressed,
-              ]}
-              onPress={() => navigation.navigate("ProfileSection", { sectionId: item.id, label: item.label })}
-            >
-              <Text style={styles.rowText}>{item.label}</Text>
-              <HugeiconsIcon icon={ArrowRight02Icon} size={16} color="#9aa3ad" strokeWidth={1.8} />
-            </Pressable>
-          );
-        }}
+        renderItem={({ item }) => (
+          <Pressable
+            style={({ pressed }) => [styles.sectionCard, pressed && styles.sectionCardPressed]}
+            onPress={() => navigation.navigate("ProfileSection", { sectionId: item.id, label: item.label })}
+            testID={`profile-section-${item.id}`}
+          >
+            <View style={[styles.sectionIconBadge, { backgroundColor: sectionAccent.bg }]}>
+              <HugeiconsIcon icon={SECTION_ICONS[item.id]} size={19} color={sectionAccent.fg} strokeWidth={1.8} />
+            </View>
+            <View style={styles.sectionCardBody}>
+              <Text style={styles.sectionCardTitle}>{item.label}</Text>
+              <Text style={styles.sectionCardCaption}>Tap to view details</Text>
+            </View>
+            <HugeiconsIcon icon={ArrowRight02Icon} size={16} color="#9aa3ad" strokeWidth={1.8} />
+          </Pressable>
+        )}
         ListFooterComponent={
           <Pressable
             style={({ pressed }) => [styles.logout, pressed && styles.logoutPressed]}
@@ -112,16 +178,19 @@ export default function ProfileListScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   hero: { borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
-  heroRow: { flexDirection: "row", alignItems: "center", gap: 14 },
-  avatar: {
-    width: 56, height: 56, borderRadius: 28,
+  heroCentered: { alignItems: "center" },
+  avatarLarge: {
+    width: 92, height: 92, borderRadius: 46,
     backgroundColor: "rgba(255,255,255,0.25)",
-    borderWidth: 2, borderColor: "#fff",
+    borderWidth: 3, borderColor: "#fff",
     alignItems: "center", justifyContent: "center",
+    overflow: "hidden",
+    marginBottom: 12,
   },
-  avatarText: { color: "#fff", fontWeight: "700", fontSize: 20 },
-  heroName: { color: "#fff", fontWeight: "700", fontSize: 18 },
-  heroMeta: { color: "rgba(255,255,255,0.85)", fontSize: 13, marginTop: 2 },
+  avatarImage: { width: "100%", height: "100%" },
+  avatarLargeText: { color: "#fff", fontWeight: "700", fontSize: 32 },
+  heroNameCentered: { color: "#fff", fontWeight: "700", fontSize: 20, textAlign: "center" },
+  heroMetaCentered: { color: "rgba(255,255,255,0.85)", fontSize: 13, marginTop: 3, textAlign: "center" },
   hierarchyLink: {
     margin: 16,
     padding: 15,
@@ -144,20 +213,30 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 8,
   },
-  row: {
+  sectionCard: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: 12,
     backgroundColor: "#fff",
-    paddingHorizontal: 16,
-    paddingVertical: 15,
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
     marginHorizontal: 16,
+    marginBottom: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 1,
   },
-  rowFirst: { borderTopLeftRadius: 14, borderTopRightRadius: 14 },
-  rowLast: { borderBottomLeftRadius: 14, borderBottomRightRadius: 14 },
-  rowDivider: { borderBottomWidth: 1, borderBottomColor: "rgba(31,35,40,0.08)" },
-  rowPressed: { backgroundColor: "#f5f6f7" },
-  rowText: { fontSize: 15, color: "#1f2328", fontWeight: "500" },
+  sectionCardPressed: { backgroundColor: "#f5f6f7" },
+  sectionIconBadge: {
+    width: 38, height: 38, borderRadius: 12,
+    alignItems: "center", justifyContent: "center",
+  },
+  sectionCardBody: { flex: 1 },
+  sectionCardTitle: { fontSize: 14.5, color: "#1f2328", fontWeight: "600" },
+  sectionCardCaption: { fontSize: 12, color: "#9aa3ad", marginTop: 2 },
   logout: {
     flexDirection: "row",
     alignItems: "center",

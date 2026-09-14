@@ -1,4 +1,5 @@
 import type { SectionId } from "../type/profile";
+import type { OrgHierarchyView } from "../type/orgHierarchy";
 
 /** Every pushable screen, grouped conceptually by which bottom tab's stack renders it. Kept as
  * one flat list (rather than four separate per-tab param-list types) so every screen component's
@@ -23,6 +24,7 @@ export type RootStackParamList = {
   ProfileList: undefined;
   ProfileSection: { sectionId: SectionId; label: string };
   CompanyHierarchy: undefined;
+  CompanyHierarchySection: { view: OrgHierarchyView; label: string };
 };
 
 /** The outer navigator: unauthenticated Login, or the authenticated bottom-tab shell. */

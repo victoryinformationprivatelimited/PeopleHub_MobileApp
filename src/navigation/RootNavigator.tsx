@@ -25,6 +25,7 @@ import PayslipScreen from "../screens/PayslipScreen";
 import ReimbursementsScreen from "../screens/ReimbursementsScreen";
 import RequestReimbursementScreen from "../screens/RequestReimbursementScreen";
 import CompanyHierarchyScreen from "../screens/CompanyHierarchyScreen";
+import CompanyHierarchySectionScreen from "../screens/CompanyHierarchySectionScreen";
 
 const RootStack = createNativeStackNavigator<RootNavParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -46,6 +47,7 @@ function HomeTabStack() {
       <Stack.Screen name="Payslip" component={PayslipScreen} />
       <Stack.Screen name="RequestReimbursement" component={RequestReimbursementScreen} options={{ title: "Request Reimbursement" }} />
       <Stack.Screen name="CompanyHierarchy" component={CompanyHierarchyScreen} options={{ title: "Company Hierarchy" }} />
+      <Stack.Screen name="CompanyHierarchySection" component={CompanyHierarchySectionScreen} />
     </Stack.Navigator>
   );
 }
@@ -80,6 +82,7 @@ function ProfileTabStack() {
       <Stack.Screen name="ProfileList" component={ProfileListScreen} options={{ title: "Profile" }} />
       <Stack.Screen name="ProfileSection" component={ProfileSectionScreen} />
       <Stack.Screen name="CompanyHierarchy" component={CompanyHierarchyScreen} options={{ title: "Company Hierarchy" }} />
+      <Stack.Screen name="CompanyHierarchySection" component={CompanyHierarchySectionScreen} />
     </Stack.Navigator>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Pressable, StyleSheet, ScrollView, Image } from "react-native";
 import { SkeletonScreen } from "../components/Skeleton";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react-native";
@@ -19,7 +19,7 @@ import GradientHeader from "../components/GradientHeader";
 import StatTile from "../components/StatTile";
 import Card from "../components/Card";
 import PieChart from "../components/PieChart";
-import { getSection } from "../api/Profile/ProfileAPI";
+import { getSection, getBasicInfoRaw } from "../api/Profile/ProfileAPI";
 import { getMyAttendanceSummary } from "../api/Attendance/AttendanceAPI";
 import { getMyLeaveEntitlements } from "../api/Leave/LeaveAPI";
 import { getMyPayPeriods, getMyPayslip } from "../api/Payroll/PayrollAPI";
@@ -29,6 +29,9 @@ type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 interface DashboardData {
   fullName: string;
   employeeNumber: string;
+  designation: string;
+  entity: string;
+  employeeImage: string | null;
   attendanceSummary: { presentDays: number; absentDays: number; leaveDays: number } | null;
   leaveBalance: number | null;
   netPay: { amount: number; payPeriodId: number; label: string } | null;
@@ -48,6 +51,9 @@ function initialsOf(name: string): string {
 const DUMMY_DATA: DashboardData = {
   fullName: "John Doe",
   employeeNumber: "E010236",
+  designation: "Software Engineer",
+  entity: "Victory Information PVT LTD",
+  employeeImage: null,
   attendanceSummary: { presentDays: 18, absentDays: 2, leaveDays: 1 },
   leaveBalance: 14,
   netPay: { amount: 3250, payPeriodId: 1, label: "This month" },
@@ -62,10 +68,12 @@ export default function HomeScreen({ navigation }: Props) {
 
     Promise.all([
       getSection("basic"),
+      getBasicInfoRaw(),
+      getSection("employment"),
       getMyAttendanceSummary(now.getFullYear(), now.getMonth() + 1),
       getMyLeaveEntitlements(now.getFullYear()),
       getMyPayPeriods(),
-    ]).then(async ([basicRes, attendanceRes, leaveRes, payPeriodsRes]) => {
+    ]).then(async ([basicRes, basicRawRes, employmentRes, attendanceRes, leaveRes, payPeriodsRes]) => {
       let fullName = "";
       let employeeNumber = "";
       const basicPayload = basicRes.success ? basicRes.data : null;
@@ -75,6 +83,17 @@ export default function HomeScreen({ navigation }: Props) {
         const last = fieldValue(fields, "Last Name") ?? "";
         fullName = [first, last].filter(Boolean).join(" ");
         employeeNumber = fieldValue(fields, "Employee Number") ?? "";
+      }
+
+      const employeeImage = basicRawRes.success ? basicRawRes.data?.employeeImage ?? null : null;
+
+      let designation = "";
+      let entity = "";
+      const employmentPayload = employmentRes.success ? employmentRes.data : null;
+      if (employmentPayload?.type === "fields") {
+        const fields = employmentPayload.fields;
+        designation = fieldValue(fields, "Role") ?? "";
+        entity = fieldValue(fields, "Entity") ?? "";
       }
 
       const attendanceSummary = attendanceRes.success && attendanceRes.data
@@ -101,6 +120,9 @@ export default function HomeScreen({ navigation }: Props) {
       setData({
         fullName: fullName || DUMMY_DATA.fullName,
         employeeNumber: employeeNumber || DUMMY_DATA.employeeNumber,
+        designation: designation || DUMMY_DATA.designation,
+        entity: entity || DUMMY_DATA.entity,
+        employeeImage,
         attendanceSummary: attendanceSummary ?? DUMMY_DATA.attendanceSummary,
         leaveBalance: leaveBalance ?? DUMMY_DATA.leaveBalance,
         netPay: netPay ?? DUMMY_DATA.netPay,
@@ -122,14 +144,19 @@ export default function HomeScreen({ navigation }: Props) {
   return (
     <ScrollView style={{ backgroundColor: neutral.background }} contentContainerStyle={styles.scrollContent}>
       <GradientHeader style={styles.hero}>
-        <View style={styles.heroRow}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initialsOf(data.fullName) || "?"}</Text>
+        <View style={styles.heroCentered}>
+          <View style={styles.avatarLarge}>
+            {data.employeeImage ? (
+              <Image source={{ uri: data.employeeImage }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.avatarLargeText}>{initialsOf(data.fullName) || "?"}</Text>
+            )}
           </View>
-          <View>
-            <Text style={styles.heroName}>{data.fullName || "Employee"}</Text>
-            {data.employeeNumber ? <Text style={styles.heroMeta}>{data.employeeNumber}</Text> : null}
-          </View>
+          <Text style={styles.heroNameCentered}>{data.fullName || "Employee"}</Text>
+          {data.employeeNumber ? <Text style={styles.heroMetaCentered}>{data.employeeNumber}</Text> : null}
+          {data.designation || data.entity ? (
+            <Text style={styles.heroMetaCentered}>{[data.designation, data.entity].filter(Boolean).join(" · ")}</Text>
+          ) : null}
         </View>
       </GradientHeader>
 
@@ -250,16 +277,19 @@ function ActionButton({
 
 const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 32 },
-  heroRow: { flexDirection: "row", alignItems: "center", gap: 14 },
-  avatar: {
-    width: 56, height: 56, borderRadius: 28,
+  heroCentered: { alignItems: "center" },
+  avatarLarge: {
+    width: 92, height: 92, borderRadius: 46,
     backgroundColor: "rgba(255,255,255,0.25)",
-    borderWidth: 2, borderColor: "#fff",
+    borderWidth: 3, borderColor: "#fff",
     alignItems: "center", justifyContent: "center",
+    overflow: "hidden",
+    marginBottom: 12,
   },
-  avatarText: { color: "#fff", fontWeight: "700", fontSize: 20 },
-  heroName: { color: "#fff", fontWeight: "700", fontSize: 18 },
-  heroMeta: { color: "rgba(255,255,255,0.85)", fontSize: 13, marginTop: 2 },
+  avatarImage: { width: "100%", height: "100%" },
+  avatarLargeText: { color: "#fff", fontWeight: "700", fontSize: 32 },
+  heroNameCentered: { color: "#fff", fontWeight: "700", fontSize: 20, textAlign: "center" },
+  heroMetaCentered: { color: "rgba(255,255,255,0.85)", fontSize: 13, marginTop: 3, textAlign: "center" },
   hero: { paddingBottom: 36, borderBottomLeftRadius: 28, borderBottomRightRadius: 28 },
   statsRow: { flexDirection: "row", gap: 10, paddingHorizontal: 16, marginTop: -16 },
   card: { padding: 16, marginHorizontal: 16, marginTop: 16, marginBottom: 4 },
