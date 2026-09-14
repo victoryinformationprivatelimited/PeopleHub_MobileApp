@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { Animated, Text, StyleSheet, Pressable, Platform } from "react-native";
 import { HugeiconsIcon } from "@hugeicons/react-native";
-import { TriangleAlertIcon, InformationCircleIcon } from "@hugeicons/core-free-icons";
+import { TriangleAlertIcon, InformationCircleIcon, CheckmarkCircle02Icon } from "@hugeicons/core-free-icons";
 import { semantic } from "../theme";
 
-export type BannerVariant = "destructive" | "warning" | "info";
+export type BannerVariant = "destructive" | "warning" | "info" | "success";
 
 interface BannerProps {
   message: string | null;
@@ -16,6 +16,7 @@ const ICONS: Record<BannerVariant, typeof TriangleAlertIcon> = {
   destructive: TriangleAlertIcon,
   warning: TriangleAlertIcon,
   info: InformationCircleIcon,
+  success: CheckmarkCircle02Icon,
 };
 
 /**
@@ -44,7 +45,7 @@ export default function Banner({ message, variant = "destructive", onDismiss }: 
 
   if (!message) return null;
 
-  const tone = semantic[variant === "destructive" ? "destructive" : variant === "warning" ? "warning" : "info"];
+  const tone = semantic[variant];
 
   return (
     <Animated.View

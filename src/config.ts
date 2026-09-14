@@ -9,7 +9,8 @@
  * environment URL before anything beyond local dev testing.
  */
 const config = {
-  apiBaseUrl: "https://localhost:7082",
+  // apiBaseUrl: "https://localhost:7082",
+  apiBaseUrl: "https://peoplehubapi.h2so4.lk",
   tenantId: "1",
 };
 

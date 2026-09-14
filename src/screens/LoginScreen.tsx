@@ -29,6 +29,7 @@ export default function LoginScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorVariant, setErrorVariant] = useState<BannerVariant>("destructive");
+  const [success, setSuccess] = useState<string | null>(null);
   const [usernameFocused, setUsernameFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
   const [buttonHovered, setButtonHovered] = useState(false);
@@ -37,13 +38,15 @@ export default function LoginScreen() {
     setSubmitting(true);
     setError(null);
     const result = await login(usernameOrEmail, password, true);
-    setSubmitting(false);
     if (result.status === "success") {
-      dispatch(setAuthenticated());
+      setSuccess("Login successful! Taking you to your dashboard…");
+      setTimeout(() => dispatch(setAuthenticated()), 1200);
     } else if (result.status === "mfaRequired") {
+      setSubmitting(false);
       setErrorVariant("warning");
       setError("This account requires multi-factor authentication, which isn't supported in this app yet.");
     } else {
+      setSubmitting(false);
       setErrorVariant("destructive");
       setError(result.message ?? "Login failed.");
     }
@@ -54,7 +57,7 @@ export default function LoginScreen() {
       <View style={styles.decorCircleTop} pointerEvents="none" />
       <View style={styles.decorCircleBottom} pointerEvents="none" />
 
-      <Banner message={error} variant={errorVariant} onDismiss={() => setError(null)} />
+      <Banner message={success ?? error} variant={success ? "success" : errorVariant} onDismiss={() => setError(null)} />
 
       <KeyboardAvoidingView
         style={styles.flex}

@@ -24,7 +24,8 @@ export default function PieChart({
   strokeWidth?: number;
   showLegend?: boolean;
 }) {
-  const total = segments.reduce((sum, s) => sum + s.value, 0) || 1;
+  const safeSegments = segments.map((s) => ({ ...s, value: Number.isFinite(s.value) ? s.value : 0 }));
+  const total = safeSegments.reduce((sum, s) => sum + s.value, 0) || 1;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   let offset = 0;
@@ -33,7 +34,7 @@ export default function PieChart({
     <View style={styles.container}>
       <Svg width={size} height={size}>
         <Circle cx={size / 2} cy={size / 2} r={radius} stroke="#eef0f3" strokeWidth={strokeWidth} fill="none" />
-        {segments.map((segment, i) => {
+        {safeSegments.map((segment, i) => {
           const fraction = segment.value / total;
           const dash = fraction * circumference;
           const circle = (
@@ -64,7 +65,7 @@ export default function PieChart({
       ) : null}
       {showLegend ? (
         <View style={styles.legend}>
-          {segments.map((segment, i) => (
+          {safeSegments.map((segment, i) => (
             <View key={i} style={styles.legendRow}>
               <View style={[styles.swatch, { backgroundColor: segment.color }]} />
               <Text style={styles.legendText}>{segment.label} ({segment.value})</Text>

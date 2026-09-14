@@ -13,6 +13,8 @@ import {
   Structure02Icon,
   ArrowRight02Icon,
   Clock01Icon,
+  LaptopIcon,
+  Route02Icon,
 } from "@hugeicons/core-free-icons";
 import type { RootStackParamList } from "../navigation/types";
 import type { RosterReturn } from "../type/attendance";
@@ -268,6 +270,18 @@ export default function HomeScreen({ navigation }: Props) {
             label="Company Hierarchy"
             onPress={() => navigation.navigate("CompanyHierarchy")}
             testID="qa-hierarchy"
+          />
+          <ActionButton
+            icon={LaptopIcon}
+            label="My Assets"
+            onPress={() => navigation.navigate("MyAssets")}
+            testID="qa-assets"
+          />
+          <ActionButton
+            icon={Route02Icon}
+            label="My Journey"
+            onPress={() => navigation.navigate("MyJourney")}
+            testID="qa-journey"
           />
         </View>
       </Card>

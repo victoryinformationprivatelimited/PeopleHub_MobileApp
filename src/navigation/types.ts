@@ -29,6 +29,8 @@ export type RootStackParamList = {
   ProfileSection: { sectionId: SectionId; label: string };
   CompanyHierarchy: undefined;
   CompanyHierarchySection: { view: OrgHierarchyView; label: string };
+  MyAssets: undefined;
+  MyJourney: undefined;
 };
 
 /** The outer navigator: unauthenticated Login, or the authenticated bottom-tab shell. */

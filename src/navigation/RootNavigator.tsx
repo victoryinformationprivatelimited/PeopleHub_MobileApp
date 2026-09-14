@@ -30,6 +30,8 @@ import ReimbursementsScreen from "../screens/ReimbursementsScreen";
 import RequestReimbursementScreen from "../screens/RequestReimbursementScreen";
 import CompanyHierarchyScreen from "../screens/CompanyHierarchyScreen";
 import CompanyHierarchySectionScreen from "../screens/CompanyHierarchySectionScreen";
+import MyAssetsScreen from "../screens/MyAssetsScreen";
+import MyJourneyScreen from "../screens/MyJourneyScreen";
 
 const RootStack = createNativeStackNavigator<RootNavParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -52,6 +54,8 @@ function HomeTabStack() {
       <Stack.Screen name="RequestReimbursement" component={RequestReimbursementScreen} options={{ title: "Request Reimbursement" }} />
       <Stack.Screen name="CompanyHierarchy" component={CompanyHierarchyScreen} options={{ title: "Company Hierarchy" }} />
       <Stack.Screen name="CompanyHierarchySection" component={CompanyHierarchySectionScreen} />
+      <Stack.Screen name="MyAssets" component={MyAssetsScreen} options={{ title: "My Assets" }} />
+      <Stack.Screen name="MyJourney" component={MyJourneyScreen} options={{ title: "My Journey" }} />
     </Stack.Navigator>
   );
 }
