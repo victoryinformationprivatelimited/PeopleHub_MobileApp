@@ -70,7 +70,7 @@ export default function LoginScreen() {
         >
           <View style={styles.brandBlock}>
             <Image
-              source={require("../../assets/peoplehub-favicon-logo.png")}
+              source={require("../../assets/peoplehub-logo-white.png")}
               style={styles.logoImage}
               resizeMode="contain"
             />

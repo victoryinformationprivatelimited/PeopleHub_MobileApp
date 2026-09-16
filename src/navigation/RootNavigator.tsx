@@ -4,7 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator, type NativeStackNavigationOptions } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react-native";
-import { Home03Icon, Calendar03Icon, Leaf01Icon, Wallet01Icon, User03Icon } from "@hugeicons/core-free-icons";
+import { Home03Icon, Calendar03Icon, CalendarCheckIn01Icon, Wallet01Icon, User03Icon } from "@hugeicons/core-free-icons";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../store";
 import { checkExistingSession } from "../store/authSlice";
@@ -154,7 +154,7 @@ function MainTabs() {
       <Tab.Screen
         name="LeaveTab"
         component={LeaveTabStack}
-        options={{ title: "Leave", tabBarIcon: ({ focused }) => <TabIcon icon={Leaf01Icon} focused={focused} /> }}
+        options={{ title: "Leave", tabBarIcon: ({ focused }) => <TabIcon icon={CalendarCheckIn01Icon} focused={focused} /> }}
       />
       <Tab.Screen
         name="PayrollTab"
