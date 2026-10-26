@@ -30,6 +30,7 @@ export type RootStackParamList = {
   CompanyHierarchy: undefined;
   CompanyHierarchySection: { view: OrgHierarchyView; label: string };
   MyAssets: undefined;
+  RequestAsset: undefined;
   MyJourney: undefined;
 };
 

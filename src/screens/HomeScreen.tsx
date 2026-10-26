@@ -14,6 +14,7 @@ import {
   ArrowRight02Icon,
   Clock01Icon,
   LaptopIcon,
+  PackageAddIcon,
   Route02Icon,
 } from "@hugeicons/core-free-icons";
 import type { RootStackParamList } from "../navigation/types";
@@ -276,6 +277,12 @@ export default function HomeScreen({ navigation }: Props) {
             label="My Assets"
             onPress={() => navigation.navigate("MyAssets")}
             testID="qa-assets"
+          />
+          <ActionButton
+            icon={PackageAddIcon}
+            label="Request Asset"
+            onPress={() => navigation.navigate("RequestAsset")}
+            testID="qa-request-asset"
           />
           <ActionButton
             icon={Route02Icon}
